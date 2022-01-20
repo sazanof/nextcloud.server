@@ -28,6 +28,7 @@
  */
 namespace OCA\DAV;
 
+use OC;
 use OC\KnownUser\KnownUserService;
 use OCA\DAV\AppInfo\PluginManager;
 use OCA\DAV\CalDAV\CalDavBackend;
@@ -58,33 +59,39 @@ use OCP\Security\ISecureRandom;
 use OCP\Share\IManager;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Sabre\DAV\SimpleCollection;
 
 class RootCollection extends SimpleCollection {
+	/**
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
+	 */
 	public function __construct() {
-		$l10n = \OC::$server->get(IFactory::class)->get('dav');
-		$random = \OC::$server->get(ISecureRandom::class);
-		$logger = \OC::$server->get(LoggerInterface::class);
-		$userManager = \OC::$server->get(IUserManager::class);
-		$userSession = \OC::$server->get(IUserSession::class);
-		$groupManager = \OC::$server->get(IGroupManager::class);
-		$shareManager = \OC::$server->get(IManager::class);
-		$db = \OC::$server->get(IDBConnection::class);
-		$dispatcher = \OC::$server->get(IEventDispatcher::class);
-		$config = \OC::$server->get(IConfig::class);
-		$proxyMapper = \OC::$server->get(ProxyMapper::class);
+		$l10n = OC::$server->get(IFactory::class)->get('dav');
+		$random = OC::$server->get(ISecureRandom::class);
+		$logger = OC::$server->get(LoggerInterface::class);
+		$userManager = OC::$server->get(IUserManager::class);
+		$userSession = OC::$server->get(IUserSession::class);
+		$groupManager = OC::$server->get(IGroupManager::class);
+		$shareManager = OC::$server->get(IManager::class);
+		$db = OC::$server->get(IDBConnection::class);
+		$dispatcher = OC::$server->get(IEventDispatcher::class);
+		$config = OC::$server->get(IConfig::class);
+		$proxyMapper = OC::$server->get(ProxyMapper::class);
 
 		$userPrincipalBackend = new Principal(
 			$userManager,
 			$groupManager,
 			$shareManager,
-			\OC::$server->get(IUserSession::class),
-			\OC::$server->get(IAppManager::class),
+			OC::$server->get(IUserSession::class),
+			OC::$server->get(IAppManager::class),
 			$proxyMapper,
-			\OC::$server->get(KnownUserService::class),
-			\OC::$server->get(IConfig::class),
-			\OC::$server->get(IFactory::class)
+			OC::$server->get(KnownUserService::class),
+			OC::$server->get(IConfig::class),
+			OC::$server->get(IFactory::class)
 		);
 		$groupPrincipalBackend = new GroupPrincipalBackend($groupManager, $userSession, $shareManager, $config);
 		$calendarResourcePrincipalBackend = new ResourcePrincipalBackend($db, $userSession, $groupManager, $logger, $proxyMapper);
@@ -126,29 +133,28 @@ class RootCollection extends SimpleCollection {
 		$roomCalendarRoot->disableListing = $disableListing;
 
 		$publicCalendarRoot = new PublicCalendarRoot($caldavBackend, $l10n, $config);
-		$publicCalendarRoot->disableListing = $disableListing;
 
 		$systemTagCollection = new SystemTag\SystemTagsByIdCollection(
-			\OC::$server->get(ISystemTagManager::class),
-			\OC::$server->get(IUserSession::class),
+			OC::$server->get(ISystemTagManager::class),
+			OC::$server->get(IUserSession::class),
 			$groupManager
 		);
 		$systemTagRelationsCollection = new SystemTag\SystemTagsRelationsCollection(
-			\OC::$server->get(ISystemTagManager::class),
-			\OC::$server->get(ISystemTagObjectMapper::class),
-			\OC::$server->get(IUserSession::class),
+			OC::$server->get(ISystemTagManager::class),
+			OC::$server->get(ISystemTagObjectMapper::class),
+			OC::$server->get(IUserSession::class),
 			$groupManager,
-			\OC::$server->get(\OC\EventDispatcher\SymfonyAdapter::class)
+			OC::$server->get(IEventDispatcher::class)
 		);
 		$commentsCollection = new Comments\RootCollection(
-			\OC::$server->get(ICommentsManager::class),
+			OC::$server->get(ICommentsManager::class),
 			$userManager,
-			\OC::$server->get(IUserSession::class),
-			\OC::$server->get(\OC\EventDispatcher\SymfonyAdapter::class),
-			\OC::$server->get(LoggerInterface::class)
+			OC::$server->get(IUserSession::class),
+			OC::$server->get(IEventDispatcher::class),
+			OC::$server->get(LoggerInterface::class)
 		);
 
-		$pluginManager = new PluginManager(\OC::$server, \OC::$server->get(IAppManager::class));
+		$pluginManager = new PluginManager(OC::$server, OC::$server->get(IAppManager::class));
 		$usersCardDavBackend = new CardDavBackend($db, $userPrincipalBackend, $userManager, $groupManager, $dispatcher);
 		$usersAddressBookRoot = new AddressBookRoot($userPrincipalBackend, $usersCardDavBackend, $pluginManager, 'principals/users');
 		$usersAddressBookRoot->disableListing = $disableListing;
@@ -160,14 +166,14 @@ class RootCollection extends SimpleCollection {
 		$uploadCollection = new Upload\RootCollection(
 			$userPrincipalBackend,
 			'principals/users',
-			\OC::$server->get(CleanupService::class));
+			OC::$server->get(CleanupService::class));
 		$uploadCollection->disableListing = $disableListing;
 
 		$avatarCollection = new Avatars\RootCollection($userPrincipalBackend, 'principals/users');
 		$avatarCollection->disableListing = $disableListing;
 
 		$appleProvisioning = new AppleProvisioningNode(
-			\OC::$server->get(ITimeFactory::class));
+			OC::$server->get(ITimeFactory::class));
 
 		$children = [
 			new SimpleCollection('principals', [
