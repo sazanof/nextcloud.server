@@ -26,16 +26,18 @@
 namespace OCA\DAV\Tests\Unit\DAV\Settings;
 
 use OCA\DAV\Settings\CalDAVSettings;
+use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IConfig;
 use OCP\AppFramework\Services\IInitialState;
+use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
 class CalDAVSettingsTest extends TestCase {
 
-	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var IConfig|MockObject */
 	private $config;
 
-	/** @var OCP\AppFramework\Services\IInitialState|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var IInitialState|MockObject */
 	private $initialState;
 
 	/** @var CalDAVSettings */
@@ -67,7 +69,7 @@ class CalDAVSettingsTest extends TestCase {
 			);
 		$result = $this->settings->getForm();
 
-		$this->assertInstanceOf('OCP\AppFramework\Http\TemplateResponse', $result);
+		$this->assertInstanceOf(TemplateResponse::class, $result);
 	}
 
 	public function testGetSection() {

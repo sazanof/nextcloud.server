@@ -28,20 +28,24 @@ declare(strict_types=1);
  */
 namespace OCA\DAV\Tests\unit\BackgroundJob;
 
+use OC\User\NoUserException;
 use OCA\DAV\BackgroundJob\EventReminderJob;
+use OCA\DAV\CalDAV\Reminder\NotificationProvider\ProviderNotAvailableException;
+use OCA\DAV\CalDAV\Reminder\NotificationTypeDoesNotExistException;
 use OCA\DAV\CalDAV\Reminder\ReminderService;
 use OCP\IConfig;
+use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
 class EventReminderJobTest extends TestCase {
 
-	/** @var ReminderService|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var ReminderService|MockObject */
 	private $reminderService;
 
-	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var IConfig|MockObject */
 	private $config;
 
-	/** @var EventReminderJob|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var EventReminderJob|MockObject */
 	private $backgroundJob;
 
 	protected function setUp(): void {
@@ -65,21 +69,27 @@ class EventReminderJobTest extends TestCase {
 	/**
 	 * @dataProvider data
 	 *
-	 * @param bool $sendEventReminders
-	 * @param bool $sendEventRemindersMode
-	 * @param bool $expectCall
+	 * @throws ProviderNotAvailableException
+	 * @throws NotificationTypeDoesNotExistException
+	 * @throws NoUserException
 	 */
 	public function testRun(bool $sendEventReminders, bool $sendEventRemindersMode, bool $expectCall): void {
-		$this->config->expects($this->at(0))
-			->method('getAppValue')
-			->with('dav', 'sendEventReminders', 'yes')
-			->willReturn($sendEventReminders ? 'yes' : 'no');
-
 		if ($sendEventReminders) {
-			$this->config->expects($this->at(1))
+			$this->config->expects($this->exactly(2))
 				->method('getAppValue')
-				->with('dav', 'sendEventRemindersMode', 'backgroundjob')
-				->willReturn($sendEventRemindersMode ? 'backgroundjob' : 'cron');
+				->withConsecutive(
+					['dav', 'sendEventReminders', 'yes'],
+					['dav', 'sendEventRemindersMode', 'backgroundjob']
+				)
+				->willReturnOnConsecutiveCalls(
+					'yes',
+					$sendEventRemindersMode ? 'backgroundjob' : 'cron'
+				);
+		} else {
+			$this->config->expects($this->once())
+				->method('getAppValue')
+				->with('dav', 'sendEventReminders', 'yes')
+				->willReturn('no');
 		}
 
 		if ($expectCall) {

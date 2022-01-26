@@ -38,6 +38,9 @@ use OCA\DAV\CalDAV\Calendar;
 use OCA\DAV\Events\CalendarDeletedEvent;
 use OCP\IConfig;
 use OCP\IL10N;
+use PHPUnit\Framework\MockObject\MockObject;
+use Sabre\DAV\Exception;
+use Sabre\DAV\Exception\BadRequest;
 use Sabre\DAV\Exception\NotFound;
 use Sabre\DAV\PropPatch;
 use Sabre\DAV\Xml\Property\Href;
@@ -51,6 +54,9 @@ use Sabre\DAVACL\IACL;
  * @package OCA\DAV\Tests\unit\CalDAV
  */
 class CalDavBackendTest extends AbstractCalDavBackend {
+	/**
+	 * @throws Exception
+	 */
 	public function testCalendarOperations() {
 		$calendarId = $this->createTestCalendar();
 
@@ -78,7 +84,7 @@ class CalDavBackendTest extends AbstractCalDavBackend {
 		self::assertEmpty($calendars);
 	}
 
-	public function providesSharingData() {
+	public function providesSharingData(): array {
 		return [
 			[true, true, true, false, [
 				[
@@ -122,10 +128,11 @@ class CalDavBackendTest extends AbstractCalDavBackend {
 
 	/**
 	 * @dataProvider providesSharingData
+	 * @throws Exception
 	 */
-	public function testCalendarSharing($userCanRead, $userCanWrite, $groupCanRead, $groupCanWrite, $add) {
+	public function testCalendarSharing(bool $userCanRead, bool $userCanWrite, bool $groupCanRead, bool $groupCanWrite, array $add) {
 
-		/** @var IL10N|\PHPUnit\Framework\MockObject\MockObject $l10n */
+		/** @var IL10N|MockObject $l10n */
 		$l10n = $this->createMock(IL10N::class);
 		$l10n
 			->expects($this->any())
@@ -201,6 +208,11 @@ EOD;
 		self::assertEmpty($calendars);
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 * @throws Exception\Forbidden
+	 */
 	public function testCalendarObjectsOperations() {
 		$calendarId = $this->createTestCalendar();
 
@@ -275,8 +287,11 @@ EOD;
 	}
 
 
+	/**
+	 * @throws Exception
+	 */
 	public function testMultipleCalendarObjectsWithSameUID() {
-		$this->expectException(\Sabre\DAV\Exception\BadRequest::class);
+		$this->expectException(BadRequest::class);
 		$this->expectExceptionMessage('Calendar object with uid already exists in this calendar collection.');
 
 		$calendarId = $this->createTestCalendar();
@@ -304,6 +319,11 @@ EOD;
 		$this->backend->createCalendarObject($calendarId, $uri1, $calData);
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 * @throws Exception\Forbidden
+	 */
 	public function testMultiCalendarObjects() {
 		$calendarId = $this->createTestCalendar();
 
@@ -412,11 +432,13 @@ EOD;
 
 	/**
 	 * @dataProvider providesCalendarQueryParameters
+	 * @throws BadRequest
+	 * @throws Exception
 	 */
-	public function testCalendarQuery($expectedEventsInResult, $propFilters, $compFilter) {
+	public function testCalendarQuery(array $expectedEventsInResult, array $propFilters, array $compFilter) {
 		$calendarId = $this->createTestCalendar();
 		$events = [];
-		$events[0] = $this->createEvent($calendarId, '20130912T130000Z', '20130912T140000Z');
+		$events[0] = $this->createEvent($calendarId);
 		$events[1] = $this->createEvent($calendarId, '20130912T150000Z', '20130912T170000Z');
 		$events[2] = $this->createEvent($calendarId, '20130912T173000Z', '20130912T220000Z');
 		$events[3] = $this->createEvent($calendarId, '21130912T130000Z', '22130912T130000Z');
@@ -433,6 +455,10 @@ EOD;
 		$this->assertEqualsCanonicalizing($expectedEventsInResult, $result);
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 */
 	public function testGetCalendarObjectByUID() {
 		$calendarId = $this->createTestCalendar();
 		$uri = static::getUniqueID('calobj');
@@ -460,7 +486,10 @@ EOD;
 		$this->assertNotNull($co);
 	}
 
-	public function providesCalendarQueryParameters() {
+	/**
+	 * @throws \Exception
+	 */
+	public function providesCalendarQueryParameters(): array {
 		return [
 			'all' => [[0, 1, 2, 3], [], []],
 			'only-todos' => [[], ['name' => 'VTODO'], []],
@@ -471,6 +500,10 @@ EOD;
 		];
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 */
 	public function testSyncSupport() {
 		$calendarId = $this->createTestCalendar();
 
@@ -479,13 +512,17 @@ EOD;
 		$syncToken = $changes['syncToken'];
 
 		// add a change
-		$event = $this->createEvent($calendarId, '20130912T130000Z', '20130912T140000Z');
+		$event = $this->createEvent($calendarId);
 
 		// look for changes
 		$changes = $this->backend->getChangesForCalendar($calendarId, $syncToken, 1);
 		$this->assertEquals($event, $changes['added'][0]);
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws NotFound
+	 */
 	public function testPublications() {
 		$this->dispatcher->expects(self::atLeastOnce())
 			->method('dispatchTyped');
@@ -494,7 +531,7 @@ EOD;
 
 		$calendarInfo = $this->backend->getCalendarsForUser(self::UNIT_TEST_USER)[0];
 
-		/** @var IL10N|\PHPUnit\Framework\MockObject\MockObject $l10n */
+		/** @var IL10N|MockObject $l10n */
 		$l10n = $this->createMock(IL10N::class);
 		$config = $this->createMock(IConfig::class);
 
@@ -518,6 +555,9 @@ EOD;
 		$this->backend->getPublicCalendar($publicCalendarURI);
 	}
 
+	/**
+	 * @throws Exception\Forbidden
+	 */
 	public function testSubscriptions() {
 		$id = $this->backend->createSubscription(self::UNIT_TEST_USER, 'Subscription', [
 			'{http://calendarserver.org/ns/}source' => new Href('test-source'),
@@ -549,7 +589,7 @@ EOD;
 		$this->assertCount(0, $subscriptions);
 	}
 
-	public function providesSchedulingData() {
+	public function providesSchedulingData(): array {
 		$data = <<<EOS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -625,7 +665,7 @@ EOS;
 	 * @dataProvider providesSchedulingData
 	 * @param $objectData
 	 */
-	public function testScheduling($objectData) {
+	public function testScheduling(string $objectData) {
 		$this->backend->createSchedulingObject(self::UNIT_TEST_USER, 'Sample Schedule', $objectData);
 
 		$sos = $this->backend->getSchedulingObjects(self::UNIT_TEST_USER);
@@ -642,13 +682,17 @@ EOS;
 
 	/**
 	 * @dataProvider providesCalDataForGetDenormalizedData
+	 * @throws BadRequest
 	 */
-	public function testGetDenormalizedData($expected, $key, $calData) {
+	public function testGetDenormalizedData(?int $expected, string $key, string $calData) {
 		$actual = $this->backend->getDenormalizedData($calData);
 		$this->assertEquals($expected, $actual[$key]);
 	}
 
-	public function providesCalDataForGetDenormalizedData() {
+	/**
+	 * @throws \Exception
+	 */
+	public function providesCalDataForGetDenormalizedData(): array {
 		return [
 			'first occurrence before unix epoch starts' => [0, 'firstOccurence', "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Sabre//Sabre VObject 4.1.1//EN\r\nCALSCALE:GREGORIAN\r\nBEGIN:VEVENT\r\nUID:413F269B-B51B-46B1-AFB6-40055C53A4DC\r\nDTSTAMP:20160309T095056Z\r\nDTSTART;VALUE=DATE:16040222\r\nDTEND;VALUE=DATE:16040223\r\nRRULE:FREQ=YEARLY\r\nSUMMARY:SUMMARY\r\nTRANSP:TRANSPARENT\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"],
 			'no first occurrence because yearly' => [null, 'firstOccurence', "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Sabre//Sabre VObject 4.1.1//EN\r\nCALSCALE:GREGORIAN\r\nBEGIN:VEVENT\r\nUID:413F269B-B51B-46B1-AFB6-40055C53A4DC\r\nDTSTAMP:20160309T095056Z\r\nRRULE:FREQ=YEARLY\r\nSUMMARY:SUMMARY\r\nTRANSP:TRANSPARENT\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"],
@@ -662,6 +706,11 @@ EOS;
 		];
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 * @throws Exception\Forbidden
+	 */
 	public function testCalendarSearch() {
 		$calendarId = $this->createTestCalendar();
 
@@ -696,7 +745,7 @@ EOD;
 			],
 			'search-term' => 'Test',
 		]);
-		$this->assertEquals(count($search1), 1);
+		$this->assertCount(1, $search1);
 
 
 		// update the card
@@ -729,7 +778,7 @@ EOD;
 			],
 			'search-term' => 'Test',
 		]);
-		$this->assertEquals(count($search2), 0);
+		$this->assertCount(0, $search2);
 
 		$search3 = $this->backend->calendarSearch(self::UNIT_TEST_USER, [
 			'comps' => [
@@ -748,7 +797,7 @@ EOD;
 			],
 			'search-term' => 'Test',
 		]);
-		$this->assertEquals(count($search3), 1);
+		$this->assertCount(1, $search3);
 
 		// t matches both summary and attendee's CN, but we want unique results
 		$search4 = $this->backend->calendarSearch(self::UNIT_TEST_USER, [
@@ -768,7 +817,7 @@ EOD;
 			],
 			'search-term' => 't',
 		]);
-		$this->assertEquals(count($search4), 1);
+		$this->assertCount(1, $search4);
 
 		$this->backend->deleteCalendarObject($calendarId, $uri);
 
@@ -789,11 +838,12 @@ EOD;
 			],
 			'search-term' => 't',
 		]);
-		$this->assertEquals(count($search5), 0);
+		$this->assertCount(0, $search5);
 	}
 
 	/**
 	 * @dataProvider searchDataProvider
+	 * @throws Exception
 	 */
 	public function testSearch(bool $isShared, array $searchOptions, int $count) {
 		$calendarId = $this->createTestCalendar();
@@ -894,7 +944,7 @@ EOD;
 		$this->assertCount($count, $result);
 	}
 
-	public function searchDataProvider() {
+	public function searchDataProvider(): array {
 		return [
 			[false, [], 4],
 			[true, ['timerange' => ['start' => new DateTime('2013-09-12 13:00:00'), 'end' => new DateTime('2013-09-12 14:00:00')]], 2],
@@ -902,6 +952,11 @@ EOD;
 		];
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 * @throws Exception\Forbidden
+	 */
 	public function testSameUriSameIdForDifferentCalendarTypes() {
 		$calendarId = $this->createTestCalendar();
 		$subscriptionId = $this->createTestSubscription();
@@ -948,6 +1003,10 @@ EOD;
 		$this->assertEquals($calData2, $this->backend->getCalendarObject($subscriptionId, $uri, CalDavBackend::CALENDAR_TYPE_SUBSCRIPTION)['calendardata']);
 	}
 
+	/**
+	 * @throws BadRequest
+	 * @throws Exception\Forbidden
+	 */
 	public function testPurgeAllCachedEventsForSubscription() {
 		$subscriptionId = $this->createTestSubscription();
 		$uri = static::getUniqueID('calobj');
@@ -974,6 +1033,9 @@ EOD;
 		$this->assertEquals(null, $this->backend->getCalendarObject($subscriptionId, $uri, CalDavBackend::CALENDAR_TYPE_SUBSCRIPTION));
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testCalendarMovement() {
 		$this->backend->createCalendar(self::UNIT_TEST_USER, 'Example', []);
 
@@ -990,6 +1052,10 @@ EOD;
 		$this->assertEquals($calendarInfoUser['uri'], $calendarInfoUser1['uri']);
 	}
 
+	/**
+	 * @throws Exception
+	 * @throws BadRequest
+	 */
 	public function testSearchPrincipal(): void {
 		$myPublic = <<<EOD
 BEGIN:VCALENDAR

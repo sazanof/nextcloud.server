@@ -32,17 +32,13 @@ use OCA\DAV\CalDAV\CalendarManager;
 use OCP\Calendar\IManager;
 use OCP\IConfig;
 use OCP\IL10N;
+use PHPUnit\Framework\MockObject\MockObject;
+use Test\TestCase;
 
-class CalendarManagerTest extends \Test\TestCase {
+class CalendarManagerTest extends TestCase {
 
-	/** @var CalDavBackend | \PHPUnit\Framework\MockObject\MockObject */
+	/** @var CalDavBackend | MockObject */
 	private $backend;
-
-	/** @var IL10N | \PHPUnit\Framework\MockObject\MockObject */
-	private $l10n;
-
-	/** @var IConfig|\PHPUnit\Framework\MockObject\MockObject */
-	private $config;
 
 	/** @var CalendarManager */
 	private $manager;
@@ -50,10 +46,10 @@ class CalendarManagerTest extends \Test\TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->backend = $this->createMock(CalDavBackend::class);
-		$this->l10n = $this->createMock(IL10N::class);
-		$this->config = $this->createMock(IConfig::class);
+		$l10n = $this->createMock(IL10N::class);
+		$config = $this->createMock(IConfig::class);
 		$this->manager = new CalendarManager($this->backend,
-			$this->l10n, $this->config);
+			$l10n, $config);
 	}
 
 	public function testSetupCalendarProvider() {
@@ -65,23 +61,22 @@ class CalendarManagerTest extends \Test\TestCase {
 				['id' => 456, 'uri' => 'blablub2'],
 			]);
 
-		/** @var IManager | \PHPUnit\Framework\MockObject\MockObject $calendarManager */
+		/** @var IManager | MockObject $calendarManager */
 		$calendarManager = $this->createMock(Manager::class);
-		$calendarManager->expects($this->at(0))
+		$calendarManager->expects($this->exactly(2))
 			->method('registerCalendar')
-			->willReturnCallback(function () {
-				$parameter = func_get_arg(0);
-				$this->assertInstanceOf(CalendarImpl::class, $parameter);
-				$this->assertEquals(123, $parameter->getKey());
-			});
-
-		$calendarManager->expects($this->at(1))
-			->method('registerCalendar')
-			->willReturnCallback(function () {
-				$parameter = func_get_arg(0);
-				$this->assertInstanceOf(CalendarImpl::class, $parameter);
-				$this->assertEquals(456, $parameter->getKey());
-			});
+			->willReturnOnConsecutiveCalls(
+				$this->callback(function () {
+					$parameter = func_get_arg(0);
+					$this->assertInstanceOf(CalendarImpl::class, $parameter);
+					$this->assertEquals(123, $parameter->getKey());
+				}),
+				$this->callback(function () {
+					$parameter = func_get_arg(0);
+					$this->assertInstanceOf(CalendarImpl::class, $parameter);
+					$this->assertEquals(456, $parameter->getKey());
+				})
+			);
 
 		$this->manager->setupCalendarProvider($calendarManager, 'user123');
 	}
