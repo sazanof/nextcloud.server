@@ -21,11 +21,14 @@
  *
  */
 
-style('settings', 'settings');
-script('settings', [ 'settings', 'admin', 'log']);
-script('core', 'setupchecks');
-script('files', 'jquery.fileupload');
+use OCP\Util;
 
+Util::addScript('settings', 'main', );
+Util::addScript('settings', 'settings');
+Util::addScript('settings', 'admin');
+Util::addScript('settings', 'log');
+Util::addScript('core', 'setupchecks');
+Util::addScript('files', 'jquery.fileupload');
 ?>
 
 <div id="app-navigation">
