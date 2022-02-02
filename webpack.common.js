@@ -2,6 +2,7 @@
 const { VueLoaderPlugin } = require('vue-loader')
 const path = require('path')
 const BabelLoaderExcludeNodeModulesExcept = require('babel-loader-exclude-node-modules-except')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ESLintPlugin = require('eslint-webpack-plugin')
 const webpack = require('webpack')
 const modules = require('./webpack.modules.js')
@@ -70,6 +71,13 @@ module.exports = {
 			{
 				test: /\.css$/,
 				use: ['style-loader', 'css-loader'],
+			},
+			{
+				test: /server\.scss$/,
+				use: [{
+					loader: 'file-loader',
+					options: { outputPath: 'css/', name: '[name].min.css'},
+				}, 'style-loader', 'css-loader', 'sass-loader'],
 			},
 			{
 				test: /\.scss$/,
@@ -145,6 +153,14 @@ module.exports = {
 			// Provide jQuery to jquery plugins as some are loaded before $ is exposed globally.
 			jQuery: 'jquery',
 		}),
+		new MiniCssExtractPlugin(
+			{
+				// Options similar to the same options in webpackOptions.output
+				// both options are optional
+				filename: "./css/[name].css",
+				chunkFilename: "./css/[id].css",
+			}
+		)
 	],
 	resolve: {
 		alias: {

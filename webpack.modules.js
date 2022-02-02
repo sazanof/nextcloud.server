@@ -41,6 +41,7 @@ module.exports = {
 		recommendedapps: path.join(__dirname, 'core/src', 'recommendedapps.js'),
 		'unified-search': path.join(__dirname, 'core/src', 'unified-search.js'),
 		systemtags: path.resolve(__dirname, 'core/src', 'systemtags/merged-systemtags.js'),
+		'css-main': path.resolve(__dirname, 'core/css', 'server.scss'),
 	},
 	dashboard: {
 		main: path.join(__dirname, 'apps/dashboard/src', 'main.js'),
