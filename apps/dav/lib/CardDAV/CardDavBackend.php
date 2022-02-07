@@ -1342,6 +1342,17 @@ class CardDavBackend implements BackendInterface, SyncSupport {
 		return $this->sharingBackend->applyShareAcl($addressBookId, $acl);
 	}
 
+	/**
+	 * @throws \OCP\DB\Exception
+	 */
+	public function pruneOutdatedSyncTokens(int $keep = 10000): int {
+		$query = $this->db->getQueryBuilder();
+		$query->delete('addressbookchanges')
+			->orderBy('id', 'DESC')
+			->setFirstResult($keep);
+		return $query->executeStatement();
+	}
+
 	private function convertPrincipal($principalUri, $toV2) {
 		if ($this->principalBackend->getPrincipalPrefix() === 'principals') {
 			[, $name] = \Sabre\Uri\split($principalUri);

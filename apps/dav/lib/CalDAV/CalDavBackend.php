@@ -3162,6 +3162,17 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	}
 
 	/**
+	 * @throws \OCP\DB\Exception
+	 */
+	public function pruneOutdatedSyncTokens(int $keep = 10000): int {
+		$query = $this->db->getQueryBuilder();
+		$query->delete('calendarchanges')
+			->orderBy('id', 'DESC')
+			->setFirstResult($keep);
+		return $query->executeStatement();
+	}
+
+	/**
 	 * return legacy endpoint principal name to new principal name
 	 *
 	 * @param $principalUri
