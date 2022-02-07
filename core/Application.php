@@ -206,6 +206,13 @@ class Application extends App {
 						$subject->addHintForMissingSubject($table->getName(), 'job_lastcheck_reserved');
 					}
 				}
+
+				if ($schema->hasTable('preferences')) {
+					$table = $schema->getTable('preferences');
+					if (!$table->hasIndex('preferences_app_key')) {
+						$subject->addHintForMissingSubject($table->getName(), 'preferences_app_key');
+					}
+				}
 			}
 		);
 
