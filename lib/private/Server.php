@@ -123,6 +123,7 @@ use OC\Memcache\Factory;
 use OC\Notification\Manager;
 use OC\OCS\DiscoveryService;
 use OC\Preview\GeneratorHelper;
+use OC\Profiler\Profiler;
 use OC\Remote\Api\ApiFactory;
 use OC\Remote\InstanceFactory;
 use OC\RichObjectStrings\Validator;
@@ -683,7 +684,9 @@ class Server extends ServerContainer implements IServerContainer {
 		$this->registerDeprecatedAlias('UserCache', ICache::class);
 
 		$this->registerService(Factory::class, function (Server $c) {
-			$arrayCacheFactory = new \OC\Memcache\Factory('', $c->get(ILogger::class),
+			$profiler = $c->get(Profiler::class);
+			$arrayCacheFactory = new \OC\Memcache\Factory('', $c->get(LoggerInterface::class),
+				$profiler,
 				ArrayCache::class,
 				ArrayCache::class,
 				ArrayCache::class
@@ -707,7 +710,9 @@ class Server extends ServerContainer implements IServerContainer {
 				$instanceId = \OC_Util::getInstanceId();
 				$path = \OC::$SERVERROOT;
 				$prefix = md5($instanceId . '-' . $version . '-' . $path);
-				return new \OC\Memcache\Factory($prefix, $c->get(ILogger::class),
+
+				return new \OC\Memcache\Factory($prefix, $c->get(LoggerInterface::class),
+					$profiler,
 					$config->getSystemValue('memcache.local', null),
 					$config->getSystemValue('memcache.distributed', null),
 					$config->getSystemValue('memcache.locking', null),
@@ -756,6 +761,13 @@ class Server extends ServerContainer implements IServerContainer {
 				$c->get(IAccountManager::class),
 				$c->get(KnownUserService::class)
 			);
+		});
+
+		$this->registerService(Profiler::class, function (Server $c) {
+			/** @var IRequest $request */
+			$profiler = new Profiler();
+			$profiler->setEnabled($c->get(\OCP\IConfig::class)->getSystemValue('debug', false));
+			return $profiler;
 		});
 		$this->registerAlias(IAvatarManager::class, AvatarManager::class);
 		/** @deprecated 19.0.0 */
