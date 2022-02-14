@@ -31,12 +31,8 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IDBConnection;
 
 class CleanupInvitationTokenJob extends TimedJob {
-
-	/** @var IDBConnection  */
-	private $db;
-
-	/** @var ITimeFactory */
-	private $timeFactory;
+	private IDBConnection $db;
+	private ITimeFactory $timeFactory;
 
 	public function __construct(IDBConnection $db, ITimeFactory $timeFactory) {
 		$this->db = $db;

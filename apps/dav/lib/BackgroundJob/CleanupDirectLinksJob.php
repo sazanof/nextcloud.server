@@ -31,11 +31,8 @@ use OCA\DAV\Db\DirectMapper;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 class CleanupDirectLinksJob extends TimedJob {
-	/** @var ITimeFactory */
-	private $timeFactory;
-
-	/** @var DirectMapper */
-	private $mapper;
+	private ITimeFactory $timeFactory;
+	private DirectMapper $mapper;
 
 	public function __construct(ITimeFactory $timeFactory, DirectMapper $mapper) {
 		$this->setInterval(60 * 60 * 24);

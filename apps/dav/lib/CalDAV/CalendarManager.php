@@ -29,15 +29,9 @@ use OCP\IConfig;
 use OCP\IL10N;
 
 class CalendarManager {
-
-	/** @var CalDavBackend */
-	private $backend;
-
-	/** @var IL10N */
-	private $l10n;
-
-	/** @var IConfig */
-	private $config;
+	private CalDavBackend $backend;
+	private IL10N $l10n;
+	private IConfig $config;
 
 	/**
 	 * CalendarManager constructor.
@@ -56,7 +50,7 @@ class CalendarManager {
 	 * @param IManager $cm
 	 * @param string $userId
 	 */
-	public function setupCalendarProvider(IManager $cm, $userId) {
+	public function setupCalendarProvider(IManager $cm, string $userId) {
 		$calendars = $this->backend->getCalendarsForUser("principals/users/$userId");
 		$this->register($cm, $calendars);
 	}

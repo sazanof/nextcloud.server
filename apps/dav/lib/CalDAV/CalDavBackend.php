@@ -94,6 +94,8 @@ use Sabre\VObject\ParseException;
 use Sabre\VObject\Property;
 use Sabre\VObject\Reader;
 use Sabre\VObject\Recur\EventIterator;
+use Sabre\VObject\Recur\MaxInstancesExceededException;
+use Sabre\VObject\Recur\NoInstancesException;
 use function array_merge;
 use function array_values;
 use function explode;
@@ -146,7 +148,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 *
 	 * @var array
 	 */
-	public $propertyMap = [
+	public array $propertyMap = [
 		'{DAV:}displayname' => 'displayname',
 		'{urn:ietf:params:xml:ns:caldav}calendar-description' => 'description',
 		'{urn:ietf:params:xml:ns:caldav}calendar-timezone' => 'timezone',
@@ -160,7 +162,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 *
 	 * @var array
 	 */
-	public $subscriptionPropertyMap = [
+	public array $subscriptionPropertyMap = [
 		'{DAV:}displayname' => 'displayname',
 		'{http://apple.com/ns/ical/}refreshrate' => 'refreshrate',
 		'{http://apple.com/ns/ical/}calendar-order' => 'calendarorder',
@@ -191,7 +193,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	];
 
 	/** @var array parameters to index */
-	public static $indexParameters = [
+	public static array $indexParameters = [
 		'ATTENDEE' => ['CN'],
 		'ORGANIZER' => ['CN'],
 	];
@@ -199,50 +201,19 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	/**
 	 * @var string[] Map of uid => display name
 	 */
-	protected $userDisplayNames;
+	protected array $userDisplayNames;
 
-	/** @var IDBConnection */
-	private $db;
+	private IDBConnection $db;
+	private Backend $calendarSharingBackend;
+	private Principal $principalBackend;
+	private IUserManager $userManager;
+	private ISecureRandom $random;
+	private LoggerInterface $logger;
+	private IEventDispatcher $dispatcher;
+	private IConfig $config;
+	private bool $legacyEndpoint;
+	private string $dbObjectPropertiesTable = 'calendarobjects_props';
 
-	/** @var Backend */
-	private $calendarSharingBackend;
-
-	/** @var Principal */
-	private $principalBackend;
-
-	/** @var IUserManager */
-	private $userManager;
-
-	/** @var ISecureRandom */
-	private $random;
-
-	/** @var LoggerInterface */
-	private $logger;
-
-	/** @var IEventDispatcher */
-	private $dispatcher;
-
-	/** @var IConfig */
-	private $config;
-
-	/** @var bool */
-	private $legacyEndpoint;
-
-	/** @var string */
-	private $dbObjectPropertiesTable = 'calendarobjects_props';
-
-	/**
-	 * CalDavBackend constructor.
-	 *
-	 * @param IDBConnection $db
-	 * @param Principal $principalBackend
-	 * @param IUserManager $userManager
-	 * @param IGroupManager $groupManager
-	 * @param ISecureRandom $random
-	 * @param LoggerInterface $logger
-	 * @param IEventDispatcher $dispatcher
-	 * @param bool $legacyEndpoint
-	 */
 	public function __construct(IDBConnection $db,
 								Principal $principalBackend,
 								IUserManager $userManager,
@@ -268,11 +239,8 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 *
 	 * By default this excludes the automatically generated birthday calendar
 	 *
-	 * @param $principalUri
-	 * @param bool $excludeBirthday
-	 * @return int
 	 */
-	public function getCalendarsForUserCount($principalUri, $excludeBirthday = true) {
+	public function getCalendarsForUserCount(string $principalUri, bool $excludeBirthday = true): int {
 		$principalUri = $this->convertPrincipal($principalUri, true);
 		$query = $this->db->getQueryBuilder();
 		$query->select($query->func()->count('*'))
@@ -1114,7 +1082,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 *
 	 * @param string $principalUri
 	 * @return array
-	 * @throws \OCP\DB\Exception
+	 * @throws Exception
 	 */
 	public function getDeletedCalendarObjectsByPrincipal(string $principalUri): array {
 		$query = $this->db->getQueryBuilder();
@@ -1262,6 +1230,9 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @param string $calendarData
 	 * @param int $calendarType
 	 * @return string
+	 * @throws BadRequest
+	 * @throws MaxInstancesExceededException
+	 * @throws NoInstancesException
 	 */
 	public function createCalendarObject($calendarId, $objectUri, $calendarData, $calendarType = self::CALENDAR_TYPE_CALENDAR) {
 		$extraData = $this->getDenormalizedData($calendarData);
@@ -1688,7 +1659,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @param integer|null $offset
 	 * @return array
 	 */
-	public function calendarSearch($principalUri, array $filters, $limit = null, $offset = null) {
+	public function calendarSearch(string $principalUri, array $filters, int $limit = null, int $offset = null): array {
 		$calendars = $this->getCalendarsForUser($principalUri);
 		$ownCalendars = [];
 		$sharedCalendars = [];
@@ -2703,8 +2674,11 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 *
 	 * @param string $calendarData
 	 * @return array
+	 * @throws NoInstancesException
+	 * @throws MaxInstancesExceededException
+	 * @throws BadRequest
 	 */
-	public function getDenormalizedData($calendarData) {
+	public function getDenormalizedData(string $calendarData): array {
 		$vObject = Reader::read($calendarData);
 		$vEvents = [];
 		$componentType = null;
@@ -2718,7 +2692,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			if ($component->name !== 'VTIMEZONE') {
 				// Finding all VEVENTs, and track them
 				if ($component->name === 'VEVENT') {
-					array_push($vEvents, $component);
+					$vEvents[] = $component;
 					if ($component->DTSTART) {
 						$hasDTSTART = true;
 					}
@@ -2829,10 +2803,10 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 
 	/**
 	 * @param boolean $value
-	 * @param \OCA\DAV\CalDAV\Calendar $calendar
+	 * @param Calendar $calendar
 	 * @return string|null
 	 */
-	public function setPublishStatus($value, $calendar) {
+	public function setPublishStatus(bool $value, Calendar $calendar): ?string {
 		$calendarId = $calendar->getResourceId();
 		$calendarData = $this->getCalendarById($calendarId);
 
@@ -2862,10 +2836,10 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	}
 
 	/**
-	 * @param \OCA\DAV\CalDAV\Calendar $calendar
+	 * @param Calendar $calendar
 	 * @return mixed
 	 */
-	public function getPublishStatus($calendar) {
+	public function getPublishStatus(Calendar $calendar): bool {
 		$query = $this->db->getQueryBuilder();
 		$result = $query->select('publicuri')
 			->from('dav_shares')
@@ -2883,7 +2857,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @param array $acl
 	 * @return array
 	 */
-	public function applyShareAcl($resourceId, $acl) {
+	public function applyShareAcl(int $resourceId, array $acl) {
 		return $this->calendarSharingBackend->applyShareAcl($resourceId, $acl);
 	}
 

@@ -30,9 +30,11 @@ declare(strict_types=1);
  */
 namespace OCA\DAV\CalDAV\Reminder;
 
+use DateTime;
 use DateTimeImmutable;
 use OCA\DAV\CalDAV\CalDavBackend;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\DB\Exception;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -48,23 +50,12 @@ use function strcasecmp;
 
 class ReminderService {
 
-	/** @var Backend */
-	private $backend;
-
-	/** @var NotificationProviderManager */
-	private $notificationProviderManager;
-
-	/** @var IUserManager */
-	private $userManager;
-
-	/** @var IGroupManager */
-	private $groupManager;
-
-	/** @var CalDavBackend */
-	private $caldavBackend;
-
-	/** @var ITimeFactory */
-	private $timeFactory;
+	private Backend $backend;
+	private NotificationProviderManager $notificationProviderManager;
+	private IUserManager $userManager;
+	private IGroupManager $groupManager;
+	private CalDavBackend $caldavBackend;
+	private ITimeFactory $timeFactory;
 
 	public const REMINDER_TYPE_EMAIL = 'EMAIL';
 	public const REMINDER_TYPE_DISPLAY = 'DISPLAY';
@@ -81,16 +72,6 @@ class ReminderService {
 		self::REMINDER_TYPE_AUDIO
 	];
 
-	/**
-	 * ReminderService constructor.
-	 *
-	 * @param Backend $backend
-	 * @param NotificationProviderManager $notificationProviderManager
-	 * @param IUserManager $userManager
-	 * @param IGroupManager $groupManager
-	 * @param CalDavBackend $caldavBackend
-	 * @param ITimeFactory $timeFactory
-	 */
 	public function __construct(Backend $backend,
 								NotificationProviderManager $notificationProviderManager,
 								IUserManager $userManager,
@@ -110,6 +91,7 @@ class ReminderService {
 	 *
 	 * @throws NotificationProvider\ProviderNotAvailableException
 	 * @throws NotificationTypeDoesNotExistException
+	 * @throws \Exception
 	 */
 	public function processReminders():void {
 		$reminders = $this->backend->getRemindersToProcess();
@@ -161,6 +143,7 @@ class ReminderService {
 	/**
 	 * @param array $objectData
 	 * @throws VObject\InvalidDataException
+	 * @throws VObject\Recur\MaxInstancesExceededException
 	 */
 	public function onCalendarObjectCreate(array $objectData):void {
 		// We only support VEvents for now
@@ -191,7 +174,7 @@ class ReminderService {
 		$recurrenceExceptions = $this->getRecurrenceExceptionFromListOfVEvents($vevents);
 		$masterItem = $this->getMasterItemFromListOfVEvents($vevents);
 		$now = $this->timeFactory->getDateTime();
-		$isRecurring = $masterItem ? $this->isRecurring($masterItem) : false;
+		$isRecurring = $masterItem && $this->isRecurring($masterItem);
 
 		foreach ($recurrenceExceptions as $recurrenceException) {
 			$eventHash = $this->getEventHash($recurrenceException);
@@ -280,7 +263,7 @@ class ReminderService {
 						continue;
 					}
 
-					$alarms = $this->getRemindersForVAlarm($valarm, $objectData, $masterHash, $alarmHash, $isRecurring, false);
+					$alarms = $this->getRemindersForVAlarm($valarm, $objectData, $masterHash, $alarmHash, $isRecurring);
 					$this->writeRemindersToDatabase($alarms);
 					$processedAlarms[] = $alarmHash;
 				}
@@ -305,7 +288,7 @@ class ReminderService {
 
 	/**
 	 * @param array $objectData
-	 * @throws VObject\InvalidDataException
+	 * @throws Exception
 	 */
 	public function onCalendarObjectDelete(array $objectData):void {
 		// We only support VEvents for now
@@ -324,6 +307,8 @@ class ReminderService {
 	 * @param bool $isRecurring
 	 * @param bool $isRecurrenceException
 	 * @return array
+	 * @throws InvalidDataException
+	 * @throws \Exception
 	 */
 	private function getRemindersForVAlarm(VAlarm $valarm,
 										   array $objectData,
@@ -340,9 +325,8 @@ class ReminderService {
 
 		$recurrenceId = $this->getEffectiveRecurrenceIdOfVEvent($valarm->parent);
 		$isRelative = $this->isAlarmRelative($valarm);
-		/** @var DateTimeImmutable $notificationDate */
 		$notificationDate = $valarm->getEffectiveTriggerTime();
-		$clonedNotificationDate = new \DateTime('now', $notificationDate->getTimezone());
+		$clonedNotificationDate = new DateTime('now', $notificationDate->getTimezone());
 		$clonedNotificationDate->setTimestamp($notificationDate->getTimestamp());
 
 		$alarms = [];
@@ -390,6 +374,7 @@ class ReminderService {
 
 	/**
 	 * @param array $reminders
+	 * @throws Exception
 	 */
 	private function writeRemindersToDatabase(array $reminders): void {
 		foreach ($reminders as $reminder) {
@@ -413,6 +398,9 @@ class ReminderService {
 	/**
 	 * @param array $reminder
 	 * @param VEvent $vevent
+	 * @throws Exception
+	 * @throws InvalidDataException
+	 * @throws VObject\Recur\MaxInstancesExceededException
 	 */
 	private function deleteOrProcessNext(array $reminder,
 										 VObject\Component\VEvent $vevent):void {
@@ -472,7 +460,7 @@ class ReminderService {
 				$alarms = $this->getRemindersForVAlarm($valarm, [
 					'calendarid' => $reminder['calendar_id'],
 					'id' => $reminder['object_id'],
-				], $reminder['event_hash'], $alarmHash, true, false);
+				], $reminder['event_hash'], $alarmHash, true);
 				$this->writeRemindersToDatabase($alarms);
 
 				// Abort generating reminders after creating one successfully
@@ -590,6 +578,7 @@ class ReminderService {
 	 * @param int $recurrenceId
 	 * @param bool $isRecurrenceException
 	 * @return VEvent|null
+	 * @throws VObject\Recur\MaxInstancesExceededException
 	 */
 	private function getVEventByRecurrenceId(VObject\Component\VCalendar $vcalendar,
 											 int $recurrenceId,

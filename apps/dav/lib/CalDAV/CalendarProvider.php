@@ -30,15 +30,9 @@ use OCP\IConfig;
 use OCP\IL10N;
 
 class CalendarProvider implements ICalendarProvider {
-
-	/** @var CalDavBackend */
-	private $calDavBackend;
-
-	/** @var IL10N */
-	private $l10n;
-
-	/** @var IConfig */
-	private $config;
+	private CalDavBackend $calDavBackend;
+	private IL10N $l10n;
+	private IConfig $config;
 
 	public function __construct(CalDavBackend $calDavBackend, IL10N $l10n, IConfig $config) {
 		$this->calDavBackend = $calDavBackend;
