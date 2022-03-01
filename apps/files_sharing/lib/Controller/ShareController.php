@@ -72,6 +72,7 @@ use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
+use OCP\Security\ISecureRandom;
 use OCP\Share;
 use OCP\Share\Exceptions\ShareNotFound;
 use OCP\Share\IManager as ShareManager;
@@ -109,6 +110,8 @@ class ShareController extends AuthPublicShareController {
 	protected $defaults;
 	/** @var ShareManager */
 	protected $shareManager;
+	/** @var ISecureRandom */
+	protected $secureRandom;
 
 	/** @var Share\IShare */
 	protected $share;
@@ -129,6 +132,7 @@ class ShareController extends AuthPublicShareController {
 	 * @param IAccountManager $accountManager
 	 * @param IEventDispatcher $eventDispatcher
 	 * @param IL10N $l10n
+	 * @param ISecureRandom $secureRandom
 	 * @param Defaults $defaults
 	 */
 	public function __construct(string $appName,
@@ -146,6 +150,7 @@ class ShareController extends AuthPublicShareController {
 								IAccountManager $accountManager,
 								IEventDispatcher $eventDispatcher,
 								IL10N $l10n,
+								ISecureRandom $secureRandom,
 								Defaults $defaults) {
 		parent::__construct($appName, $request, $session, $urlGenerator);
 
@@ -159,6 +164,7 @@ class ShareController extends AuthPublicShareController {
 		$this->accountManager = $accountManager;
 		$this->eventDispatcher = $eventDispatcher;
 		$this->l10n = $l10n;
+		$this->secureRandom = $secureRandom;
 		$this->defaults = $defaults;
 		$this->shareManager = $shareManager;
 	}
@@ -235,8 +241,8 @@ class ShareController extends AuthPublicShareController {
 	protected function generatePassword() {
 		// Generates a password respecting any password policy defined
 		$event = new \OCP\Security\Events\GenerateSecurePasswordEvent();
-	$this->eventDispatcher->dispatchTyped($event);
-		$password = $event->getPassword() ?? $password = \OC::$server->getSecureRandom()->generate(20);
+		$this->eventDispatcher->dispatchTyped($event);
+		$password = $event->getPassword() ?? $this->secureRandom->generate(20);
 
 		$this->share->setPassword($password);
 		$this->shareManager->updateShare($this->share, true);
