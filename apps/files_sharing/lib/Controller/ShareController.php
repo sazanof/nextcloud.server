@@ -234,12 +234,34 @@ class ShareController extends AuthPublicShareController {
 		return $response;
 	}
 
+	/**
+	 * Validate the identity token of a public share
+	 *
+	 * @param string $identityToken
+	 * @return bool
+	 */
 	protected function validateIdentity(string $identityToken): bool {
-		return $this->shareManager->validateIdentity($this->share, $identityToken);
+
+		if ($this->share->getShareType() !== IShare::TYPE_EMAIL) {
+			return false;
+		}
+
+		if ($identityToken === null || $this->share->getSharedWith() === null) {
+			return false;
+		}
+
+		if ($identityToken !== $this->share->getSharedWith()) {
+			return false;
+		}
+
+		return true;
+
 	}
 
+	/**
+	 * Generates a password for the share, respecting any password policy defined
+	 */
 	protected function generatePassword() {
-		// Generates a password respecting any password policy defined
 		$event = new \OCP\Security\Events\GenerateSecurePasswordEvent();
 		$this->eventDispatcher->dispatchTyped($event);
 		$password = $event->getPassword() ?? $this->secureRandom->generate(20);

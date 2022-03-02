@@ -206,15 +206,6 @@ interface IManager {
 	public function getShareByToken($token);
 
 	/**
-	 * Validate the identity token of a public share
-	 *
-	 * @param IShare $share
-	 * @param string $recipient
-	 * @return bool
-	 */
-	public function validateIdentity(IShare $share, $identityToken);
-
-	/**
 	 * Verify the password of a public share
 	 *
 	 * @param IShare $share
