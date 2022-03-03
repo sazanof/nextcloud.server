@@ -36,7 +36,7 @@ namespace OCA\DAV;
 
 use OCA\DAV\Connector\Sabre\RequestIdHeaderPlugin;
 use OCP\Diagnostics\IEventLogger;
-use OC\Profiler\Profiler;
+use OCP\Profiler\IProfiler;
 use OCA\DAV\Profiler\ProfilerPlugin;
 use OCP\AppFramework\Http\Response;
 use OCP\Diagnostics\IEventLogger;
@@ -97,9 +97,7 @@ class Server {
 	private $profiler;
 
 	public function __construct(IRequest $request, $baseUri) {
-		$this->profiler = \OC::$server->get(Profiler::class);
-		$config = \OC::$server->get(IConfig::class);
-		$this->profiler->setEnabled($config->getSystemValue('debug', false));
+		$this->profiler = \OC::$server->get(IProfiler::class);
 		if ($this->profiler->isEnabled()) {
 			/** @var IEventLogger $eventLogger */
 			$eventLogger = \OC::$server->get(IEventLogger::class);
