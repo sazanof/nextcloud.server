@@ -52,6 +52,7 @@ use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\HintException;
+use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IL10N;
 use OCP\ILogger;
@@ -74,6 +75,9 @@ use OCP\Share\IShareProvider;
  * @package OCA\ShareByMail
  */
 class ShareByMailProvider implements IShareProvider {
+
+	/** @var IConfig */
+	private $config;
 
 	/** @var  IDBConnection */
 	private $dbConnection;
@@ -126,7 +130,8 @@ class ShareByMailProvider implements IShareProvider {
 		return 'ocMailShare';
 	}
 
-	public function __construct(IDBConnection $connection,
+	public function __construct(IConfig $config,
+								IDBConnection $connection,
 								ISecureRandom $secureRandom,
 								IUserManager $userManager,
 								IRootFolder $rootFolder,
@@ -140,6 +145,7 @@ class ShareByMailProvider implements IShareProvider {
 								IHasher $hasher,
 								IEventDispatcher $eventDispatcher,
 								IShareManager $shareManager) {
+		$this->config = $config;
 		$this->dbConnection = $connection;
 		$this->secureRandom = $secureRandom;
 		$this->userManager = $userManager;
@@ -768,7 +774,7 @@ class ShareByMailProvider implements IShareProvider {
 				->set('uid_owner', $qb->createNamedParameter($share->getShareOwner()))
 				->set('uid_initiator', $qb->createNamedParameter($share->getSharedBy()))
 				->set('password', $qb->createNamedParameter($share->getPassword()))
-				->set('password_expiration_time', $qb->createNamedParameter($expirationTime->format('Y-m-d H:i:s'), IQueryBuilder::PARAM_DATE))
+				->set('password_expiration_time', $qb->createNamedParameter($expirationTime, IQueryBuilder::PARAM_DATE))
 				->set('label', $qb->createNamedParameter($share->getLabel()))
 				->set('password_by_talk', $qb->createNamedParameter($share->getSendPasswordByTalk(), IQueryBuilder::PARAM_BOOL))
 				->set('expiration', $qb->createNamedParameter($share->getExpirationDate(), IQueryBuilder::PARAM_DATE))
