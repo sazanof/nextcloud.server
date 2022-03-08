@@ -18,8 +18,10 @@ form fieldset > p {
 	min-width: 0; /* FF hack for to override default value */
 }
 
-input[type='submit'],
-input[type='submit'].icon-confirm {
+#password-input-form input[type='submit'],
+#email-input-form input[type='submit'],
+#email-input-form input[type='submit'].icon-confirm,
+#password-input-form input[type='submit'].icon-confirm {
 	position: absolute;
 	top: 0px;
 	right: -5px;

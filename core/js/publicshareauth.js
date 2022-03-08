@@ -1,13 +1,15 @@
-function showEmailAddressPrompt() {
+function showEmailAddressPromptForm() {
 	// Shows email prompt
-	var emailInput = document.getElementById('email-input');
-	var emailPrompt = document.getElementById('email-prompt');
+	var emailInput = document.getElementById('email-input-form');
 	emailInput.style.display="block";
-	emailPrompt.style.display="block";
 
-	// Hides password prompt
+	// Shows back button
+	var backButton = document.getElementById('request-password-back-button');
+	backButton.style.display="block";
+
+	// Hides password prompt and 'request password' button
 	var passwordRequestButton = document.getElementById('request-password-button-not-talk');
-	var passwordInput = document.getElementById('password-input');
+	var passwordInput = document.getElementById('password-input-form');
 	passwordRequestButton.style.display="none";
 	passwordInput.style.display="none";
 
@@ -23,17 +25,28 @@ function showEmailAddressPrompt() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+	// Enables password submit button only when user has typed something in the password field
 	var passwordInput = document.getElementById('password');
 	var passwordButton = document.getElementById('password-submit');
 	var eventListener = function() {
 		passwordButton.disabled = passwordInput.value.length === 0;
 	};
-
 	passwordInput.addEventListener('click', eventListener);
 	passwordInput.addEventListener('keyup', eventListener);
 	passwordInput.addEventListener('change', eventListener);
 
+	// Enables email request button only when user has typed something in the email field
+	var emailInput = document.getElementById('email');
+	var emailButton = document.getElementById('password-request');
+	eventListener = function() {
+		emailButton.disabled = emailInput.value.length === 0;
+	};
+	emailInput.addEventListener('click', eventListener);
+	emailInput.addEventListener('keyup', eventListener);
+	emailInput.addEventListener('change', eventListener);
+
+	// Adds functionality to the request password button
 	var passwordRequestButton = document.getElementById('request-password-button-not-talk');
-	passwordRequestButton.addEventListener('click', showEmailAddressPrompt);
+	passwordRequestButton.addEventListener('click', showEmailAddressPromptForm);
 
 });
