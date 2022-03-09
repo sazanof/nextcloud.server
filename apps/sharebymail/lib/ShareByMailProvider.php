@@ -733,22 +733,17 @@ class ShareByMailProvider implements IShareProvider {
 	 *
 	 * @param IShare $share
 	 * @param string|null $plainTextPassword
-	 * @param bool $sendEmail whether the password should be sent to the recipient or not.
-	 * 	The password shall be sent only when it has been requested successfully, either
-	 * 	via a Talk session, or the temporary password self-provisioning process.
 	 * @return IShare The share object
 	 */
-	public function update(IShare $share, $plainTextPassword = null, bool $sendEmail = false) {
+	public function update(IShare $share, $plainTextPassword = null) {
 		$originalShare = $this->getShareById($share->getId());
 
 		// a real password was given
 		$validPassword = $plainTextPassword !== null && $plainTextPassword !== '';
 
-		if ($sendEmail) {
-			if ($validPassword && ($originalShare->getPassword() !== $share->getPassword() ||
-			($originalShare->getSendPasswordByTalk() && !$share->getSendPasswordByTalk()))) {
-				$this->sendPassword($share, $plainTextPassword);
-			}
+		if ($validPassword && ($originalShare->getPassword() !== $share->getPassword() ||
+								($originalShare->getSendPasswordByTalk() && !$share->getSendPasswordByTalk()))) {
+			$this->sendPassword($share, $plainTextPassword);
 		}
 
 		// Gets password expiration interval. Defaults to 15 minutes.

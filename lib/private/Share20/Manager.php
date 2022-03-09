@@ -959,13 +959,10 @@ class Manager implements IManager {
 	 * Update a share
 	 *
 	 * @param IShare $share
-	 * @param bool $sendPassword For non-anonymous shares, tells whether the share's password
-	 * 	should be sent to the recipient or not (overriden when the share's password is
-	 * 	requested via Talk, in which case it is always sent)
 	 * @return IShare The share object
 	 * @throws \InvalidArgumentException
 	 */
-	public function updateShare(IShare $share, bool $sendPassword = false) {
+	public function updateShare(IShare $share) {
 		$expirationDateUpdated = false;
 
 		$this->canShare($share);
@@ -1060,7 +1057,7 @@ class Manager implements IManager {
 		// Now update the share!
 		$provider = $this->factory->getProviderForType($share->getShareType());
 		if ($share->getShareType() === IShare::TYPE_EMAIL) {
-			$share = $provider->update($share, $plainTextPassword, $sendPassword || $share->getSendPasswordByTalk());
+			$share = $provider->update($share, $plainTextPassword);
 		} else {
 			$share = $provider->update($share);
 		}
