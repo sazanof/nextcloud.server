@@ -27,6 +27,8 @@ declare(strict_types=1);
  */
 namespace OCA\UpdateNotification\Controller;
 
+use OC\User\Backend;
+use OCP\User\Backend\ICountUsersBackend;
 use OCA\UpdateNotification\ResetTokenBackgroundJob;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -38,6 +40,8 @@ use OCP\IL10N;
 use OCP\IRequest;
 use OCP\Security\ISecureRandom;
 use OCP\Util;
+use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 class AdminController extends Controller {
 	/** @var IJobList */
@@ -50,6 +54,10 @@ class AdminController extends Controller {
 	private $timeFactory;
 	/** @var IL10N */
 	private $l10n;
+	/** @var IUserManager */
+	private $userManager;
+	/** @var LoggerInterface */
+	private $logger;
 
 	/**
 	 * @param string $appName
@@ -66,17 +74,24 @@ class AdminController extends Controller {
 								ISecureRandom $secureRandom,
 								IConfig $config,
 								ITimeFactory $timeFactory,
-								IL10N $l10n) {
+								IL10N $l10n,
+								IUserManager $userManager,
+								LoggerInterface $logger) {
 		parent::__construct($appName, $request);
 		$this->jobList = $jobList;
 		$this->secureRandom = $secureRandom;
 		$this->config = $config;
 		$this->timeFactory = $timeFactory;
 		$this->l10n = $l10n;
+		$this->userManager = $userManager;
+		$this->logger = $logger;
 	}
 
 	private function isUpdaterEnabled() {
-		return !$this->config->getSystemValue('upgrade.disable-web', false);
+		if ($this->config->getSystemValue('upgrade.disable-web', false) || $this->getUserCount() > 100) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -106,5 +121,36 @@ class AdminController extends Controller {
 		$this->config->setSystemValue('updater.secret', password_hash($newToken, PASSWORD_DEFAULT));
 
 		return new DataResponse($newToken);
+	}
+
+	// Copied from https://github.com/nextcloud/server/blob/a06001e0851abc6073af678b742da3e1aa96eec9/lib/private/Support/Subscription/Registry.php#L187-L214
+	private function getUserCount(): int {
+		$userCount = 0;
+		$backends = $this->userManager->getBackends();
+		foreach ($backends as $backend) {
+			if ($backend->implementsActions(Backend::COUNT_USERS)) {
+				/** @var ICountUsersBackend $backend */
+				$backendUsers = $backend->countUsers();
+				if ($backendUsers !== false) {
+					$userCount += $backendUsers;
+				} else {
+					// TODO what if the user count can't be determined?
+					$this->logger->warning('Can not determine user count for ' . get_class($backend), ['app' => 'updatenotification']);
+				}
+			}
+		}
+
+		$disabledUsers = $this->config->getUsersForUserValue('core', 'enabled', 'false');
+		$disabledUsersCount = count($disabledUsers);
+		$userCount = $userCount - $disabledUsersCount;
+
+		if ($userCount < 0) {
+			$userCount = 0;
+
+			// this should never happen
+			$this->logger->warning("Total user count was negative (users: $userCount, disabled: $disabledUsersCount)", ['app' => 'updatenotification']);
+		}
+
+		return $userCount;
 	}
 }

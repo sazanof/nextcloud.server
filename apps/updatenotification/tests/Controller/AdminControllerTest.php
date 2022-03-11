@@ -37,6 +37,8 @@ use OCP\IL10N;
 use OCP\IRequest;
 use OCP\Security\ISecureRandom;
 use Test\TestCase;
+use OCP\IUserManager;
+use Psr\Log\LoggerInterface;
 
 class AdminControllerTest extends TestCase {
 	/** @var IRequest|\PHPUnit\Framework\MockObject\MockObject */
@@ -53,6 +55,10 @@ class AdminControllerTest extends TestCase {
 	private $timeFactory;
 	/** @var IL10N|\PHPUnit\Framework\MockObject\MockObject */
 	private $l10n;
+	/** @var IUserManager|\PHPUnit\Framework\MockObject\MockObject */
+	private $userManager;
+	/** @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject */
+	private $logger;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -63,6 +69,8 @@ class AdminControllerTest extends TestCase {
 		$this->config = $this->createMock(IConfig::class);
 		$this->timeFactory = $this->createMock(ITimeFactory::class);
 		$this->l10n = $this->createMock(IL10N::class);
+		$this->userManager = $this->createMock(IUserManager::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->adminController = new AdminController(
 			'updatenotification',
@@ -71,7 +79,9 @@ class AdminControllerTest extends TestCase {
 			$this->secureRandom,
 			$this->config,
 			$this->timeFactory,
-			$this->l10n
+			$this->l10n,
+			$this->userManager,
+			$this->logger
 		);
 	}
 
