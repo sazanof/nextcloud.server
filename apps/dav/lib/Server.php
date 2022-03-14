@@ -39,8 +39,6 @@ use OCP\Diagnostics\IEventLogger;
 use OCP\Profiler\IProfiler;
 use OCA\DAV\Profiler\ProfilerPlugin;
 use OCP\AppFramework\Http\Response;
-use OCP\Diagnostics\IEventLogger;
-use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 use OCA\DAV\AppInfo\PluginManager;
 use OCA\DAV\CalDAV\BirthdayService;
@@ -93,7 +91,7 @@ class Server {
 	/** @var Connector\Sabre\Server  */
 	public $server;
 
-	/** @var Profiler */
+	/** @var IProfiler */
 	private $profiler;
 
 	public function __construct(IRequest $request, $baseUri) {

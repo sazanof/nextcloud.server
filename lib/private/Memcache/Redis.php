@@ -162,7 +162,7 @@ class Redis extends Cache implements IMemcacheTTL {
 		self::$cache->watch($this->getPrefix() . $key);
 		if ($this->get($key) === $old) {
 			$result = self::$cache->multi()
-				->del($this->getNameSpace() . $key)
+				->del($this->getPrefix() . $key)
 				->exec();
 			return $result !== false;
 		}

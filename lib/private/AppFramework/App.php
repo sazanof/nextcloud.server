@@ -126,6 +126,7 @@ class App {
 		// Disable profiler on the profiler UI
 		$profiler->setEnabled($profiler->isEnabled() && !str_starts_with($urlParams['_route'], 'profiler.'));
 		if ($profiler->isEnabled()) {
+			\OC::$server->get(IEventLogger::class)->activate();
 			$profiler->add(new RoutingDataCollector($container['AppName'], $controllerName, $methodName));
 		}
 

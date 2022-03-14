@@ -153,14 +153,6 @@ class TemplateLayout extends \OC_Template {
 				}
 			}
 
-			// Setup profiler toolbar
-			$profiler = \OC::$server->get(IProfiler::class);
-			if ($profiler->isEnabled() && \OC::$server->getGroupManager()->isAdmin($user->getUID())) {
-				// TODO potentially create more DB query when profiler is enabled
-				$this->initialState->provideInitialState('profiler', 'request-token', \OC::$server->getRequest()->getId());
-				\OCP\Util::addScript('profiler', 'profilerToolbar');
-			}
-
 			// check if app menu icons should be inverted
 			try {
 				/** @var \OCA\Theming\Util $util */

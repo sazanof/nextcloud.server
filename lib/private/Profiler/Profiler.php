@@ -46,7 +46,7 @@ class Profiler implements IProfiler {
 		$this->storage = new FileProfilerStorage($config->getValue('datadirectory',  \OC::$SERVERROOT . '/data') . '/profiler');
 		/** @var array $profilerConditions */
 		$this->profilerConditions = $config->getValue('profiler.condition', []);
-		$this->enabled = $config->getValue('profiler', true) || $config->getValue('debug', true);
+		$this->enabled = $config->getValue('profiler', true);
 	}
 
 	public function add(IDataCollector $dataCollector): void {
@@ -99,7 +99,7 @@ class Profiler implements IProfiler {
 	public function isEnabled(): bool {
 		return $this->enabled;
 	}
-	
+
 	public function setEnabled(bool $enabled): void {
 		$this->enabled = $enabled;
 	}
