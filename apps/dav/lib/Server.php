@@ -129,7 +129,7 @@ class Server {
 		$this->server->setBaseUri($this->baseUri);
 
 
-		$this->server->addPlugin(new ProfilerPlugin($this->request, $this->profiler));
+		$this->server->addPlugin(new ProfilerPlugin($this->request));
 		$this->server->addPlugin(new BlockLegacyClientPlugin(\OC::$server->getConfig()));
 		$this->server->addPlugin(new AnonymousOptionsPlugin());
 		$authPlugin = new Plugin();
@@ -359,8 +359,6 @@ class Server {
 		$this->server->exec();
 		$eventLogger->end('dav_server_exec');
 		if ($this->profiler->isEnabled()) {
-			/** @var IEventLogger $eventLogger */
-			$eventLogger = \OC::$server->get(IEventLogger::class);
 			$eventLogger->end('runtime');
 			$profile = $this->profiler->collect(\OC::$server->get(IRequest::class), new Response());
 			$this->profiler->saveProfile($profile);

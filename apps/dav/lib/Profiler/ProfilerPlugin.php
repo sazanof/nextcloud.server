@@ -23,7 +23,6 @@
 
 namespace OCA\DAV\Profiler;
 
-use OC\Profiler\Profiler;
 use OCP\IRequest;
 use Sabre\DAV\Server;
 use Sabre\HTTP\RequestInterface;
