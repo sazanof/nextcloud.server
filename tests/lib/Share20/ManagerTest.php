@@ -527,6 +527,21 @@ class ManagerTest extends \Test\TestCase {
 		$this->assertNull($result);
 	}
 
+	public function testVerifyPasswordNotEnforcedMultipleGroups() {
+		$this->config->method('getAppValue')->willReturnMap([
+			['core', 'shareapi_enforce_links_password_excluded_groups', '', '["admin", "special"]'],
+			['core', 'shareapi_enforce_links_password', 'no', 'yes'],
+		]);
+
+		// Create admin user
+		$user = $this->createMock(IUser::class);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('getUserGroupIds')->with($user)->willReturn(['special']);
+
+		$result = self::invokePrivate($this->manager, 'verifyPassword', [null]);
+		$this->assertNull($result);
+	}
+
 	public function testVerifyPasswordNull() {
 		$this->config->method('getAppValue')->willReturnMap([
 			['core', 'shareapi_enforce_links_password_excluded_groups', '', ''],
