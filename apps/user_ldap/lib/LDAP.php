@@ -14,6 +14,7 @@
  * @author Robin McCorkell <robin@mccorkell.me.uk>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
  * @author Roger Szabo <roger.szabo@web.de>
+ * @author Carl Schwan <carl@carlschwan.eu>
  *
  * @license AGPL-3.0
  *
@@ -303,7 +304,6 @@ class LDAP implements ILDAPWrapper {
 		if (function_exists($func)) {
 			$this->preFunctionCall($func, $arguments);
 			$result = call_user_func_array($func, $arguments);
-			\OC::$server->getLogger()->critical('Hello');
 			if ($this->isResultFalse($result)) {
 				$this->postFunctionCall();
 			}
