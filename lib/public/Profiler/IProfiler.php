@@ -84,5 +84,5 @@ interface IProfiler {
 	 * Collect all the information from the current request and construct
 	 * a IProfile from it.
 	 */
-	public function collect(Request $request, Response $response): IProfile {
+	public function collect(Request $request, Response $response): IProfile;
 }
