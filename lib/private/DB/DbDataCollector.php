@@ -44,7 +44,7 @@ class DbDataCollector extends \OCP\DataCollector\AbstractDataCollector {
 		$this->connection = $connection;
 	}
 
-	public function setLogger(DebugStack $logger, $name = 'default') {
+	public function setLogger(DebugStack $logger, $name = 'default'): void {
 		$this->logger = $logger;
 	}
 
@@ -63,7 +63,7 @@ class DbDataCollector extends \OCP\DataCollector\AbstractDataCollector {
 		return 'db';
 	}
 
-	public function getQueries() {
+	public function getQueries(): array {
 		return $this->data['queries'];
 	}
 

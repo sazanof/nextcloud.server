@@ -48,9 +48,6 @@ class FileProfilerStorage {
 		}
 	}
 
-	/**
-	 * {@inheritdoc}
-	 */
 	public function find(?string $url, ?int $limit, ?string $method, int $start = null, int $end = null, string $statusCode = null): array {
 		$file = $this->getIndexFilename();
 
@@ -94,10 +91,7 @@ class FileProfilerStorage {
 		return array_values($result);
 	}
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function purge() {
+	public function purge(): void {
 		$flags = \FilesystemIterator::SKIP_DOTS;
 		$iterator = new \RecursiveDirectoryIterator($this->folder, $flags);
 		$iterator = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::CHILD_FIRST);
@@ -111,9 +105,6 @@ class FileProfilerStorage {
 		}
 	}
 
-	/**
-	 * {@inheritdoc}
-	 */
 	public function read(string $token): ?IProfile {
 		if (!$token || !file_exists($file = $this->getFilename($token))) {
 			return null;
@@ -127,8 +118,6 @@ class FileProfilerStorage {
 	}
 
 	/**
-	 * {@inheritdoc}
-	 *
 	 * @throws \RuntimeException
 	 */
 	public function write(IProfile $profile): bool {
@@ -223,9 +212,9 @@ class FileProfilerStorage {
 	 *
 	 * @param resource $file The file resource, with the pointer placed at the end of the line to read
 	 *
-	 * @return mixed A string representing the line or null if beginning of file is reached
+	 * @return ?string A string representing the line or null if beginning of file is reached
 	 */
-	protected function readLineFromFile($file) {
+	protected function readLineFromFile($file): ?string {
 		$line = '';
 		$position = ftell($file);
 
