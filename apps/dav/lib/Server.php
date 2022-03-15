@@ -129,7 +129,7 @@ class Server {
 		$this->server->setBaseUri($this->baseUri);
 
 
-		$this->server->addPlugin(new ProfilerPlugin($this->request));
+		$this->server->addPlugin(new ProfilerPlugin());
 		$this->server->addPlugin(new BlockLegacyClientPlugin(\OC::$server->getConfig()));
 		$this->server->addPlugin(new AnonymousOptionsPlugin());
 		$authPlugin = new Plugin();

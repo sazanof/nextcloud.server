@@ -29,10 +29,6 @@ use Sabre\HTTP\RequestInterface;
 use Sabre\HTTP\ResponseInterface;
 
 class ProfilerPlugin extends \Sabre\DAV\ServerPlugin {
-	public function __construct(IRequest $request) {
-		$this->request = $request;
-	}
-
 	public function initialize(Server $server) {
 		$server->on('afterMethod:*', [$this, 'afterMethod']);
 	}
