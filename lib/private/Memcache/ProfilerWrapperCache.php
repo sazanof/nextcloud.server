@@ -212,7 +212,7 @@ class ProfilerWrapperCache extends AbstractDataCollector implements IMemcacheTTL
 		return 'cache/' . $this->type . '/' . $this->prefix;
 	}
 
-	static public function isAvailable(): bool {
+	public static function isAvailable(): bool {
 		return true;
 	}
 }

@@ -81,5 +81,5 @@ interface ICache {
 	 * Check if the cache implementation is available
 	 * @since 24.0.0
 	 */
-	static public function isAvailable(): bool;
+	public static function isAvailable(): bool;
 }

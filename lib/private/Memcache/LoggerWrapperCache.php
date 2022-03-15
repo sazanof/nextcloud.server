@@ -169,7 +169,7 @@ class LoggerWrapperCache extends Cache implements IMemcacheTTL {
 		$this->wrappedCache->setTTL($key, $ttl);
 	}
 
-	static public function isAvailable(): bool {
+	public static function isAvailable(): bool {
 		return true;
 	}
 }

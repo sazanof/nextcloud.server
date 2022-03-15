@@ -116,7 +116,7 @@ class CappedMemoryCache implements ICache, \ArrayAccess {
 		}
 	}
 
-	static public function isAvailable(): bool {
+	public static function isAvailable(): bool {
 		return true;
 	}
 }
