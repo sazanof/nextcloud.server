@@ -46,25 +46,25 @@ interface IProfile {
 	public function setToken(string $token): void;
 
 	/** Get the time of the profile */
-	public function getTime(): int;
+	public function getTime(): ?int;
 
 	/** Set the time of the profile */
 	public function setTime(int $time): void;
 
 	/** Get the url of the profile */
-	public function getUrl(): string;
+	public function getUrl(): ?string;
 
 	/** Set the url of the profile */
 	public function setUrl(string $url): void;
 
 	/** Get the method of the profile */
-	public function getMethod(): string;
+	public function getMethod(): ?string;
 
 	/** Set the method of the profile */
 	public function setMethod(string $method): void;
 
 	/** Get the status code of the profile */
-	public function getStatusCode(): int;
+	public function getStatusCode(): ?int;
 
 	/** Set the status code of the profile */
 	public function setStatusCode(int $statusCode): void;
@@ -83,15 +83,15 @@ interface IProfile {
 
 	/**
 	 * Get the profile's children
-	 * @return Profile[]
+	 * @return IProfile[]
 	 **/
 	public function getChildren(): array;
 
 	/**
 	 * Set the profile's children
-	 * @param Profile[] $children
+	 * @param IProfile[] $children
 	 */
-	public function setChildren(array $children);
+	public function setChildren(array $children): void;
 
 	/** Add the child profile */
 	public function addChild(IProfile $profile): void;

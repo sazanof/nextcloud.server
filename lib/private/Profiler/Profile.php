@@ -58,7 +58,7 @@ class Profile implements \JsonSerializable, IProfile {
 		$this->token = $token;
 	}
 
-	public function getTime(): int {
+	public function getTime(): ?int {
 		return $this->time;
 	}
 
@@ -66,7 +66,7 @@ class Profile implements \JsonSerializable, IProfile {
 		$this->time = $time;
 	}
 
-	public function getUrl(): string {
+	public function getUrl(): ?string {
 		return $this->url;
 	}
 
@@ -74,7 +74,7 @@ class Profile implements \JsonSerializable, IProfile {
 		$this->url = $url;
 	}
 
-	public function getMethod(): string {
+	public function getMethod(): ?string {
 		return $this->method;
 	}
 
@@ -82,7 +82,7 @@ class Profile implements \JsonSerializable, IProfile {
 		$this->method = $method;
 	}
 
-	public function getStatusCode(): int {
+	public function getStatusCode(): ?int {
 		return $this->statusCode;
 	}
 
@@ -106,13 +106,13 @@ class Profile implements \JsonSerializable, IProfile {
 		return $this->parent ? $this->parent->getToken() : null;
 	}
 
-	/** @return Profile[] */
+	/** @return IProfile[] */
 	public function getChildren(): array {
 		return $this->children;
 	}
 
 	/**
-	 * @param Profile[] $children
+	 * @param IProfile[] $children
 	 */
 	public function setChildren(array $children) {
 		$this->children = [];
