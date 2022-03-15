@@ -32,6 +32,7 @@ use OCP\DataCollector\IDataCollector;
 
 /**
  * This interface allows to interact with the built-in Nextcloud profiler.
+ * @since 24.0.0
  */
 interface IProfiler {
 	/**

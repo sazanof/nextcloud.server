@@ -33,7 +33,7 @@ use OCP\AppFramework\Http\Response;
 /**
  * DataCollectorInterface.
  *
- * @author Fabien Potencier <fabien@symfony.com>
+ * @since 24.0.0
  */
 interface IDataCollector {
 	/**

@@ -37,6 +37,7 @@ use OCP\DataCollector\IDataCollector;
  * ```
  *
  * This interface is meant to be used directly and not extended.
+ * @since 24.0.0
  */
 interface IProfile {
 	/** Get the token of the profile */

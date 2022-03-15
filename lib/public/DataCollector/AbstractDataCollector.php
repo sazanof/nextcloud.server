@@ -33,6 +33,7 @@ namespace OCP\DataCollector;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Bernhard Schussek <bschussek@symfony.com>
  * @author Carl Schwan <carl@carlschwan.eu>
+ * @since 24.0.0
  */
 abstract class AbstractDataCollector implements IDataCollector, \JsonSerializable {
 	/** @var array */
