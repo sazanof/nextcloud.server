@@ -34,9 +34,7 @@ namespace OC\Memcache;
 use OCP\Profiler\IProfiler;
 use OCP\ICache;
 use OCP\ICacheFactory;
-use OCP\ILogger;
 use OCP\IMemcache;
-use phpDocumentor\Reflection\Types\ClassString;
 use Psr\Log\LoggerInterface;
 
 class Factory implements ICacheFactory {

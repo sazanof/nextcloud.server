@@ -37,15 +37,14 @@ use OC\AppFramework\Http\Request;
 use OC\Diagnostics\EventLogger;
 use OCP\Profiler\IProfiler;
 use OC\Profiler\RoutingDataCollector;
+use OCP\AppFramework\QueryException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\ICallbackResponse;
 use OCP\AppFramework\Http\IOutput;
-use OCP\AppFramework\QueryException;
 use OCP\Diagnostics\IEventLogger;
 use OCP\HintException;
 use OCP\IConfig;
 use OCP\IRequest;
-use Psr\Container\ContainerExceptionInterface;
 
 /**
  * Entry point for every request in your app. You can consider this as your
@@ -144,7 +143,7 @@ class App {
 		// first try $controllerName then go for \OCA\AppName\Controller\$controllerName
 		try {
 			$controller = $container->get($controllerName);
-		} catch (ContainerExceptionInterface $e) {
+		} catch (QueryException $e) {
 			if (strpos($controllerName, '\\Controller\\') !== false) {
 				// This is from a global registered app route that is not enabled.
 				[/*OC(A)*/, $app, /* Controller/Name*/] = explode('\\', $controllerName, 3);

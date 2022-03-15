@@ -70,5 +70,4 @@ abstract class AbstractDataCollector implements IDataCollector, \JsonSerializabl
 	public function jsonSerialize() {
 		return $this->data;
 	}
-
 }

@@ -57,7 +57,6 @@ use OCP\IUserSession;
 use OCP\Support\Subscription\IRegistry;
 use OCP\UserStatus\IManager as IUserStatusManager;
 use OCP\Util;
-use OCP\Profiler\IProfiler;
 
 class TemplateLayout extends \OC_Template {
 	private static $versionHash = '';

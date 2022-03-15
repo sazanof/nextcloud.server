@@ -114,7 +114,7 @@ class Profile implements \JsonSerializable, IProfile {
 	/**
 	 * @param IProfile[] $children
 	 */
-	public function setChildren(array $children) {
+	public function setChildren(array $children): void {
 		$this->children = [];
 		foreach ($children as $child) {
 			$this->addChild($child);
@@ -129,16 +129,14 @@ class Profile implements \JsonSerializable, IProfile {
 	/**
 	 * @return IDataCollector[]
 	 */
-	public function getCollectors(): array
-	{
+	public function getCollectors(): array {
 		return $this->collectors;
 	}
 
 	/**
 	 * @param IDataCollector[] $collectors
 	 */
-	public function setCollectors(array $collectors): void
-	{
+	public function setCollectors(array $collectors): void {
 		$this->collectors = $collectors;
 	}
 
@@ -159,10 +157,10 @@ class Profile implements \JsonSerializable, IProfile {
 		];
 	}
 
-    public function getCollector(string $collectorName): ?IDataCollector {
+	public function getCollector(string $collectorName): ?IDataCollector {
 		if (!array_key_exists($collectorName, $this->collectors)) {
 			return null;
 		}
 		return $this->collectors[$collectorName];
-    }
+	}
 }

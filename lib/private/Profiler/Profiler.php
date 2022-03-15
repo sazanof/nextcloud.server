@@ -29,7 +29,6 @@ namespace OC\Profiler;
 use OC\AppFramework\Http\Request;
 use OCP\AppFramework\Http\Response;
 use OCP\DataCollector\IDataCollector;
-use OCP\IConfig;
 use OCP\Profiler\IProfiler;
 use OCP\Profiler\IProfile;
 use OC\SystemConfig;
@@ -43,9 +42,7 @@ class Profiler implements IProfiler {
 	private bool $enabled = false;
 
 	public function __construct(SystemConfig $config) {
-		$this->storage = new FileProfilerStorage($config->getValue('datadirectory',  \OC::$SERVERROOT . '/data') . '/profiler');
-		/** @var array $profilerConditions */
-		$this->profilerConditions = $config->getValue('profiler.condition', []);
+		$this->storage = new FileProfilerStorage($config->getValue('datadirectory', \OC::$SERVERROOT . '/data') . '/profiler');
 		$this->enabled = $config->getValue('profiler', true);
 	}
 
@@ -87,7 +84,7 @@ class Profiler implements IProfiler {
 	/**
 	 * @return array[]
 	 */
-	public function find(?string $url, ?int $limit, ?string $method, ?string $start, ?string $end,
+	public function find(?string $url, ?int $limit, ?string $method, ?int $start, ?int $end,
 						 string $statusCode = null): array {
 		return $this->storage->find($url, $limit, $method, $start, $end, $statusCode);
 	}

@@ -26,7 +26,6 @@ namespace OC\Memcache;
 use OC\AppFramework\Http\Request;
 use OCP\AppFramework\Http\Response;
 use OCP\DataCollector\AbstractDataCollector;
-use OCP\ICache;
 use OCP\IMemcacheTTL;
 
 /**
@@ -211,5 +210,9 @@ class ProfilerWrapperCache extends AbstractDataCollector implements IMemcacheTTL
 
 	public function getName(): string {
 		return 'cache/' . $this->type . '/' . $this->prefix;
+	}
+
+	static public function isAvailable(): bool {
+		return true;
 	}
 }

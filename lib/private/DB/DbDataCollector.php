@@ -29,8 +29,7 @@ use Doctrine\DBAL\Types\Type;
 use OC\AppFramework\Http\Request;
 use OCP\AppFramework\Http\Response;
 
-class DbDataCollector extends \OCP\DataCollector\AbstractDataCollector
-{
+class DbDataCollector extends \OCP\DataCollector\AbstractDataCollector {
 	/** @var DebugStack */
 	protected $logger;
 
@@ -49,24 +48,23 @@ class DbDataCollector extends \OCP\DataCollector\AbstractDataCollector
 		$this->logger = $logger;
 	}
 
-    /**
-     * @inheritDoc
-     */
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
-    {
+	/**
+	 * @inheritDoc
+	 */
+	public function collect(Request $request, Response $response, \Throwable $exception = null): void {
 		$queries = $this->sanitizeQueries($this->logger->queries);
 
 		$this->data = [
 			'queries' => $queries,
 		];
-    }
+	}
 
-    public function getName(): string {
+	public function getName(): string {
 		return 'db';
 	}
 
-    public function getQueries() {
-    	return $this->data['queries'];
+	public function getQueries() {
+		return $this->data['queries'];
 	}
 
 	private function sanitizeQueries(array $queries): array {
@@ -127,8 +125,7 @@ class DbDataCollector extends \OCP\DataCollector\AbstractDataCollector
 	 * indicating if the original value was kept (allowing to use the sanitized
 	 * value to explain the query).
 	 */
-	private function sanitizeParam($var, ?\Throwable $error): array
-	{
+	private function sanitizeParam($var, ?\Throwable $error): array {
 		if (\is_object($var)) {
 			return [$o = new ObjectParameter($var, $error), false, $o->isStringable() && !$error];
 		}

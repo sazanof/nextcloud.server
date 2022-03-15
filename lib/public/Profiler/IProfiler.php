@@ -29,17 +29,16 @@ namespace OCP\Profiler;
 use OC\AppFramework\Http\Request;
 use OCP\AppFramework\Http\Response;
 use OCP\DataCollector\IDataCollector;
-use OCP\Profiler\IProfile;
 
 /**
  * This interface allows to interact with the built-in Nextcloud profiler.
- */ 
+ */
 interface IProfiler {
 	/**
 	 * Add a new data collector to the profiler. This allows to later on
 	 * collect all the data from every registered collector.
 	 *
-	 * @see IDataCollector 
+	 * @see IDataCollector
 	 */
 	public function add(IDataCollector $dataCollector): void;
 
@@ -58,7 +57,7 @@ interface IProfiler {
 	/**
 	 * Find a profile from various search parameters
 	 */
-	public function find(?string $url, ?int $limit, ?string $method, ?string $start, ?string $end, string $statusCode = null): array;
+	public function find(?string $url, ?int $limit, ?string $method, ?int $start, ?int $end, string $statusCode = null): array;
 
 	/**
 	 * Get the list of data providers by identifier

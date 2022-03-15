@@ -50,5 +50,4 @@ interface IDataCollector {
 	 * Returns the name of the collector.
 	 */
 	public function getName(): string;
-
 }
