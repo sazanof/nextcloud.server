@@ -79,4 +79,10 @@ interface IProfiler {
 	 * @see isEnabled
 	 */
 	public function setEnabled(bool $enabled): void;
+
+	/**
+	 * Collect all the information from the current request and construct
+	 * a IProfile from it.
+	 */
+	public function collect(Request $request, Response $response): IProfile {
 }
