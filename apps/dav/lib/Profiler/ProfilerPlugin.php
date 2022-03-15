@@ -34,6 +34,6 @@ class ProfilerPlugin extends \Sabre\DAV\ServerPlugin {
 	}
 
 	public function afterMethod(RequestInterface $request, ResponseInterface $response) {
-		$response->addHeader('X-Debug-Token', $this->request->getId());
+		$response->addHeader('X-Debug-Token', $request->getId());
 	}
 }
