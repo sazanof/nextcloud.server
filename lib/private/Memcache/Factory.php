@@ -42,36 +42,28 @@ use Psr\Log\LoggerInterface;
 class Factory implements ICacheFactory {
 	public const NULL_CACHE = NullCache::class;
 
-	/**
-	 * @var string $globalPrefix
-	 */
-	private $globalPrefix;
+	private string $globalPrefix;
 
-	/**
-	 * @var LoggerInterface $logger
-	 */
-	private $logger;
+	private LoggerInterface $logger;
 
 	/**
 	 * @var ?class-string<ICache> $localCacheClass
 	 */
-	private $localCacheClass;
+	private ?string $localCacheClass;
 
 	/**
 	 * @var ?class-string<ICache> $distributedCacheClass
 	 */
-	private $distributedCacheClass;
+	private ?string $distributedCacheClass;
 
 	/**
 	 * @var ?class-string<IMemcache> $lockingCacheClass
 	 */
-	private $lockingCacheClass;
+	private ?string $lockingCacheClass;
 
-	/** @var string */
-	private $logFile;
+	private string $logFile;
 
-	/** @var IProfiler $profiler */
-	private $profiler;
+	private IProfiler $profiler;
 
 	/**
 	 * @param string $globalPrefix
@@ -124,6 +116,7 @@ class Factory implements ICacheFactory {
 	 * @return IMemcache
 	 */
 	public function createLocking(string $prefix = ''): IMemcache {
+		assert($this->lockingCacheClass !== null);
 		$cache = new $this->lockingCacheClass($this->globalPrefix . '/' . $prefix);
 		if ($this->profiler->isEnabled() && $this->lockingCacheClass === '\OC\Memcache\Redis') {
 			// We only support the profiler with Redis
@@ -145,6 +138,7 @@ class Factory implements ICacheFactory {
 	 * @return ICache
 	 */
 	public function createDistributed(string $prefix = ''): ICache {
+		assert($this->distributedCacheClass !== null);
 		$cache = new $this->distributedCacheClass($this->globalPrefix . '/' . $prefix);
 		if ($this->profiler->isEnabled() && $this->distributedCacheClass === '\OC\Memcache\Redis') {
 			// We only support the profiler with Redis
@@ -166,6 +160,7 @@ class Factory implements ICacheFactory {
 	 * @return ICache
 	 */
 	public function createLocal(string $prefix = ''): ICache {
+		assert($this->localCacheClass !== null);
 		$cache = new $this->localCacheClass($this->globalPrefix . '/' . $prefix);
 		if ($this->profiler->isEnabled() && $this->localCacheClass === '\OC\Memcache\Redis') {
 			// We only support the profiler with Redis
