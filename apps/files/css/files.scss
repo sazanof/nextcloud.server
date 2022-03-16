@@ -1195,6 +1195,11 @@ table.dragshadow td.size {
 	#showgridview:focus + & {
 		opacity: 1;
 	}
+
+	&:focus-visible,
+	#showgridview:focus-visible + & {
+		outline: 1px solid var(--color-primary) !important;
+	}
 }
 
 /**

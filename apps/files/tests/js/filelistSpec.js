@@ -119,12 +119,12 @@ describe('OCA.Files.FileList tests', function() {
 			'<thead><tr>' +
 			'<th id="headerName" class="hidden column-name">' +
 			'<input type="checkbox" id="select_all_files" class="select-all checkbox">' +
-			'<a class="name columntitle" data-sort="name"><span>Name</span><span class="sort-indicator"></span></a>' +
+			'<a class="name columntitle" href="#" data-sort="name"><span>Name</span><span class="sort-indicator"></span></a>' +
 			'<span id="selectedActionsList" class="selectedActions hidden">' +
-			'<a href class="actions-selected"><span class="icon icon-more"></span><span>Actions</span></a>' +
+			'<a href class="actions-selected" href="#"><span class="icon icon-more"></span><span>Actions</span></a>' +
 			'</th>' +
-			'<th class="hidden column-size"><a class="columntitle" data-sort="size"><span class="sort-indicator"></span></a></th>' +
-			'<th class="hidden column-mtime"><a class="columntitle" data-sort="mtime"><span class="sort-indicator"></span></a></th>' +
+			'<th class="hidden column-size"><a class="columntitle" href="#" data-sort="size"><span class="sort-indicator"></span></a></th>' +
+			'<th class="hidden column-mtime"><a class="columntitle" href="#" data-sort="mtime"><span class="sort-indicator"></span></a></th>' +
 			'</tr></thead>' +
 			'<tbody id="fileList"></tbody>' +
 			'<tfoot></tfoot>' +
