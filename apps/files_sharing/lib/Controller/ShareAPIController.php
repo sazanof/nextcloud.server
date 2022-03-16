@@ -431,6 +431,7 @@ class ShareAPIController extends OCSController {
 	 * @param string $shareWith
 	 * @param string $publicUpload
 	 * @param string $password
+	 * @param bool $sendPassword Set to false to make sure share password isn't sent
 	 * @param string $sendPasswordByTalk
 	 * @param string $expireDate
 	 * @param string $label
@@ -451,6 +452,7 @@ class ShareAPIController extends OCSController {
 		string $shareWith = null,
 		string $publicUpload = 'false',
 		string $password = '',
+		bool $sendPassword = true,
 		string $sendPasswordByTalk = null,
 		string $expireDate = '',
 		string $note = '',
@@ -663,7 +665,7 @@ class ShareAPIController extends OCSController {
 		}
 
 		try {
-			$share = $this->shareManager->createShare($share);
+			$share = $this->shareManager->createShare($share, $sendPassword);
 		} catch (GenericShareException $e) {
 			\OC::$server->getLogger()->logException($e);
 			$code = $e->getCode() === 0 ? 403 : $e->getCode();

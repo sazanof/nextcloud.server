@@ -166,11 +166,12 @@ class ShareByMailProvider implements IShareProvider {
 	 * Share a path
 	 *
 	 * @param IShare $share
+	 * @param bool $sendPassword Set to false to make sure password is not sent
 	 * @return IShare The share object
 	 * @throws ShareNotFound
 	 * @throws \Exception
 	 */
-	public function create(IShare $share) {
+	public function create(IShare $share, bool $sendPassword = true) {
 		$shareWith = $share->getSharedWith();
 		/*
 		 * Check if file is not already shared with the remote user
@@ -196,9 +197,13 @@ class ShareByMailProvider implements IShareProvider {
 		}
 
 		$shareId = $this->createMailShare($share);
-		$send = $this->sendPassword($share, $password);
-		if ($passwordEnforced && $send === false) {
-			$this->sendPasswordToOwner($share, $password);
+
+		// Sends share password
+		if ($sendPassword) {
+			$send = $this->sendPassword($share, $password);
+			if ($passwordEnforced && $send === false) {
+				$this->sendPasswordToOwner($share, $password);
+			}
 		}
 
 		$this->createShareActivity($share);

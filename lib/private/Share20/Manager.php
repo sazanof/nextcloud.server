@@ -715,12 +715,13 @@ class Manager implements IManager {
 	 * Share a path
 	 *
 	 * @param IShare $share
+	 * @param bool $sendPassword Set to false to make sure share password is not sent
 	 * @return IShare The share object
 	 * @throws \Exception
 	 *
 	 * TODO: handle link share permissions or check them
 	 */
-	public function createShare(IShare $share) {
+	public function createShare(IShare $share, bool $sendPassword = true) {
 		$this->canShare($share);
 
 		$this->generalCreateChecks($share);
@@ -816,7 +817,7 @@ class Manager implements IManager {
 
 			$oldShare = $share;
 			$provider = $this->factory->getProviderForType($share->getShareType());
-			$share = $provider->create($share);
+			$share = $provider->create($share, $sendPassword);
 
 			// Reuse the node we already have
 			$share->setNode($oldShare->getNode());
