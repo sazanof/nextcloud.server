@@ -121,7 +121,7 @@ kbd {
 	> ul {
 		position: relative;
 		height: 100%;
-		width: inherit;
+		width: 100%;
 		overflow-x: hidden;
 		overflow-y: auto;
 		box-sizing: border-box;
@@ -158,6 +158,13 @@ kbd {
 				> a {
 					background-color: var(--color-background-hover);
 				}
+			}
+			a:focus-visible {
+				border: 1px solid var(--color-primary);
+				outline: none;
+				padding: 0 9px 0 43px !important;
+				background-position: 13px center;
+				line-height: 42px;
 			}
 			&.active,
 			a:active,
@@ -368,6 +375,12 @@ kbd {
 			/* Needed for IE11; otherwise the button appears to the right of the
 			 * link. */
 			left: 0;
+
+			&:focus-visible {
+				opacity: 1;
+				background: none;
+				border: 1px solid var(--color-primary);
+			}
 		}
 		&:before {
 			position: absolute;
@@ -747,6 +760,11 @@ $min-content-width: $breakpoint-mobile - $navigation-width - $list-min-width;
 	&:hover,
 	&:focus {
 		background-color: var(--color-background-hover);
+	}
+	&:focus-visible {
+		border: 1px solid var(--color-primary) !important;
+		background-position: 12px center;
+		padding-left: 42px;
 	}
 }
 
