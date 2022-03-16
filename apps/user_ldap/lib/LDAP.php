@@ -321,7 +321,7 @@ class LDAP implements ILDAPWrapper {
 
 		if ($this->dataCollector !== null) {
 			$args = array_reduce($this->curArgs, static function (array $carry, $item): array {
-				$carry[] = !isResource($item) ? $item : '(resource)';
+				$carry[] = !$this->isResource($item) ? $item : '(resource)';
 				return $carry;
 			}, []);
 
@@ -330,7 +330,7 @@ class LDAP implements ILDAPWrapper {
 
 		if ($this->logFile !== '' && is_writable(dirname($this->logFile)) && (!file_exists($this->logFile) || is_writable($this->logFile))) {
 			$args = array_reduce($this->curArgs, static function (array $carry, $item): array {
-				$carry[] = !isResource($item) ? $item : '(resource)';
+				$carry[] = !$this->isResource($item) ? $item : '(resource)';
 				return $carry;
 			}, []);
 			file_put_contents(
