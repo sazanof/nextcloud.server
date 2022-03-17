@@ -77,6 +77,9 @@ div[contenteditable=true],
 		cursor: default;
 		opacity: 0.5;
 	}
+	&:focus-visible {
+		border-width: 2px;
+	}
 	&:required {
 		box-shadow: none;
 	}

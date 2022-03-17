@@ -231,6 +231,9 @@ table th .columntitle {
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	vertical-align: middle;
+	&:focus-visible {
+		border-radius: 2px;
+	}
 }
 table.multiselect th .columntitle {
 	display: inline-block;
@@ -506,6 +509,9 @@ table td.selection {
 	&:focus + label {
 		background-color: var(--color-background-hover);
 		border-radius: var(--border-radius-pill);
+		outline: none !important;
+		border: 2px solid var(--color-primary) !important;
+		padding: 14px;
 	}
 }
 
@@ -842,6 +848,10 @@ table.dragshadow td.size {
 
 .app-files .actions .button.new {
 	position: relative;
+}
+
+.breadcrumb .icon-home {
+	border-radius: var(--border-radius);
 }
 
 .breadcrumb .canDrop > a,
@@ -1198,7 +1208,7 @@ table.dragshadow td.size {
 
 	&:focus-visible,
 	#showgridview:focus-visible + & {
-		outline: 1px solid var(--color-primary) !important;
+		outline: 2p2 solid var(--color-primary) !important;
 	}
 }
 

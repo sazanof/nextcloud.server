@@ -174,7 +174,7 @@ export default {
 		align-items: center;
 		justify-content: center;
 		width: 50px;
-		height: 46px;
+		height: 44px;
 		margin: 2px 0;
 		padding: 0;
 		cursor: pointer;
@@ -186,6 +186,11 @@ export default {
 	&__trigger:focus,
 	&__trigger:active {
 		opacity: 1;
+	}
+
+	&__trigger:focus-active {
+		outline: none;
+		margin-top: 1px !important;
 	}
 
 	&__wrapper {

@@ -160,11 +160,12 @@ kbd {
 				}
 			}
 			a:focus-visible {
-				border: 1px solid var(--color-primary);
+				border: 2px solid var(--color-primary);
+				border-radius: var(--border-radius);
 				outline: none;
-				padding: 0 9px 0 43px !important;
-				background-position: 13px center;
-				line-height: 42px;
+				padding: 0 8px 0 42px !important;
+				background-position: 12px center;
+				line-height: 40px;
 			}
 			&.active,
 			a:active,
@@ -379,7 +380,8 @@ kbd {
 			&:focus-visible {
 				opacity: 1;
 				background: none;
-				border: 1px solid var(--color-primary);
+				border-radius: var(--border-radius);
+				border: 2px solid var(--color-primary);
 			}
 		}
 		&:before {
@@ -762,7 +764,8 @@ $min-content-width: $breakpoint-mobile - $navigation-width - $list-min-width;
 		background-color: var(--color-background-hover);
 	}
 	&:focus-visible {
-		border: 1px solid var(--color-primary) !important;
+		border: 2px solid var(--color-primary) !important;
+		border-radius: var(--border-radius);
 		background-position: 12px center;
 		padding-left: 42px;
 	}
