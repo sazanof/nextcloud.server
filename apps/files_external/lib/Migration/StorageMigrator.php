@@ -29,6 +29,7 @@ use OCA\Files_External\Service\LegacyStoragesService;
 use OCA\Files_External\Service\StoragesService;
 use OCA\Files_External\Service\UserLegacyStoragesService;
 use OCA\Files_External\Service\UserStoragesService;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\Config\IUserMountCache;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -67,6 +68,8 @@ class StorageMigrator {
 	/** @var IUserMountCache  */
 	private $userMountCache;
 
+	private IEventDispatcher $eventDispatcher;
+
 	/**
 	 * StorageMigrator constructor.
 	 *
@@ -76,6 +79,7 @@ class StorageMigrator {
 	 * @param IDBConnection $connection
 	 * @param ILogger $logger
 	 * @param IUserMountCache $userMountCache
+	 * @param IEventDispatcher $eventDispatcher
 	 */
 	public function __construct(
 		BackendService $backendService,
@@ -83,7 +87,8 @@ class StorageMigrator {
 		IConfig $config,
 		IDBConnection $connection,
 		ILogger $logger,
-		IUserMountCache $userMountCache
+		IUserMountCache $userMountCache,
+		IEventDispatcher $eventDispatcher
 	) {
 		$this->backendService = $backendService;
 		$this->dbConfig = $dbConfig;
@@ -91,6 +96,7 @@ class StorageMigrator {
 		$this->connection = $connection;
 		$this->logger = $logger;
 		$this->userMountCache = $userMountCache;
+		$this->eventDispatcher = $eventDispatcher;
 	}
 
 	private function migrate(LegacyStoragesService $legacyService, StoragesService $storageService) {
@@ -127,7 +133,7 @@ class StorageMigrator {
 		if (version_compare($userVersion, '0.5.0', '<')) {
 			$this->config->setUserValue($userId, 'files_external', 'config_version', '0.5.0');
 			$legacyService = new UserLegacyStoragesService($this->backendService, $dummySession);
-			$storageService = new UserStoragesService($this->backendService, $this->dbConfig, $dummySession, $this->userMountCache);
+			$storageService = new UserStoragesService($this->backendService, $this->dbConfig, $dummySession, $this->userMountCache, $this->eventDispatcher);
 
 			$this->migrate($legacyService, $storageService);
 		}
