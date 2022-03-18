@@ -338,6 +338,7 @@ class ShareByMailProvider implements IShareProvider {
 			$share->getPermissions(),
 			$share->getToken(),
 			$share->getPassword(),
+			$share->getPasswordExpirationTime(),
 			$share->getSendPasswordByTalk(),
 			$share->getHideDownload(),
 			$share->getLabel(),
@@ -700,7 +701,7 @@ class ShareByMailProvider implements IShareProvider {
 	 * @param \DateTime|null $expirationTime
 	 * @return int
 	 */
-	protected function addShareToDB($itemSource, $itemType, $shareWith, $sharedBy, $uidOwner, $permissions, $token, $password, $sendPasswordByTalk, $hideDownload, $label, $expirationTime, $note = ''): int {
+	protected function addShareToDB($itemSource, $itemType, $shareWith, $sharedBy, $uidOwner, $permissions, $token, $password, $passwordExpirationTime, $sendPasswordByTalk, $hideDownload, $label, $expirationTime, $note = ''): int {
 		$qb = $this->dbConnection->getQueryBuilder();
 		$qb->insert('share')
 			->setValue('share_type', $qb->createNamedParameter(IShare::TYPE_EMAIL))
@@ -713,6 +714,7 @@ class ShareByMailProvider implements IShareProvider {
 			->setValue('permissions', $qb->createNamedParameter($permissions))
 			->setValue('token', $qb->createNamedParameter($token))
 			->setValue('password', $qb->createNamedParameter($password))
+			->setValue('password_expiration_time', $qb->createNamedParameter($passwordExpirationTime, IQueryBuilder::PARAM_DATE))
 			->setValue('password_by_talk', $qb->createNamedParameter($sendPasswordByTalk, IQueryBuilder::PARAM_BOOL))
 			->setValue('stime', $qb->createNamedParameter(time()))
 			->setValue('hide_download', $qb->createNamedParameter((int)$hideDownload, IQueryBuilder::PARAM_INT))
