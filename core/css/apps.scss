@@ -163,9 +163,9 @@ kbd {
 				border: 2px solid var(--color-primary);
 				border-radius: var(--border-radius);
 				outline: none;
-				padding: 0 8px 0 42px !important;
 				background-position: 12px center;
 				line-height: 40px;
+				padding: 0 10px 0 12px;
 			}
 			&.active,
 			a:active,
@@ -288,6 +288,9 @@ kbd {
 
 				&.svg {
 					padding: 0 12px 0 44px;
+					:focus-visible {
+						padding: 0 8px 0 42px;
+					}
 				}
 				&:first-child img {
 				    margin-right: 11px;

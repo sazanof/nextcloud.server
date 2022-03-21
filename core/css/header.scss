@@ -149,6 +149,12 @@
 					&.active {
 						background-color: var(--color-primary-light);
 					}
+					&:focus-visible {
+						padding: 8px 10px;
+						margin: 2px;
+						width: calc(100% - 4px);
+						height: $header-menu-entry-height - 4px !important;
+					}
 					span {
 						display: inline-block;
 						padding-bottom: 0;
@@ -463,6 +469,9 @@ nav[role='navigation'] {
 			letter-spacing: -0.5px;
 			font-size: 12px;
 			margin: 2px;
+			&:focus-visible {
+			  height: 43px;
+			}
 		}
 
 		/* focused app visual feedback */
