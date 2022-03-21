@@ -86,6 +86,42 @@ class AdminControllerTest extends TestCase {
 	}
 
 	public function testCreateCredentials() {
+		$backend1 = $this->createMock(UserInterface::class);
+		$backend2 = $this->createMock(UserInterface::class);
+		$backend3 = $this->createMock(UserInterface::class);
+		$backend1
+			->expects($this->once())
+			->method('implementsActions')
+			->with(Backend::COUNT_USERS)
+			->willReturn(false);
+		$backend2
+			->expects($this->once())
+			->method('implementsActions')
+			->with(Backend::COUNT_USERS)
+			->willReturn(true);
+		$backend3
+			->expects($this->once())
+			->method('implementsActions')
+			->with(Backend::COUNT_USERS)
+			->willReturn(true);
+		$backend1
+			->expects($this->never())
+			->method('countUsers');
+		$backend2
+			->expects($this->once())
+			->method('countUsers')
+			->with()
+			->willReturn(false);
+		$backend3
+			->expects($this->once())
+			->method('countUsers')
+			->with()
+			->willReturn(5);
+		$this->userManager
+			->expects($this->once())
+			->method('getBackends')
+			->with()
+			->willReturn([$backend1, $backend2, $backend3]);
 		$this->jobList
 			->expects($this->once())
 			->method('add')

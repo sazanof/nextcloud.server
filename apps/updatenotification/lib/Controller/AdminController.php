@@ -128,6 +128,7 @@ class AdminController extends Controller {
 		$userCount = 0;
 		$backends = $this->userManager->getBackends();
 		foreach ($backends as $backend) {
+			// TODO: change below to 'if ($backend instanceof ICountUsersBackend) {'
 			if ($backend->implementsActions(Backend::COUNT_USERS)) {
 				/** @var ICountUsersBackend $backend */
 				$backendUsers = $backend->countUsers();
