@@ -28,7 +28,7 @@ use OC\Contacts\ContactsMenu\Actions\LinkAction;
 use Test\TestCase;
 
 class LinkActionTest extends TestCase {
-	private $action;
+	private LinkAction $action;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -67,7 +67,7 @@ class LinkActionTest extends TestCase {
 
 		$json = $this->action->jsonSerialize();
 		$this->assertArrayHasKey('hyperlink', $json);
-		$this->assertEquals($json['hyperlink'], '/some/url');
+		$this->assertEquals('/some/url', $json['hyperlink']);
 	}
 
 	public function testJsonSerialize() {

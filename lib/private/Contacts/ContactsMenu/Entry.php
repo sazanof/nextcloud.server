@@ -35,26 +35,21 @@ class Entry implements IEntry {
 	/** @var string|int|null */
 	private $id = null;
 
-	/** @var string */
-	private $fullName = '';
+	private string $fullName = '';
 
 	/** @var string[] */
-	private $emailAddresses = [];
+	private array $emailAddresses = [];
 
-	/** @var string|null */
-	private $avatar;
+	private ?string $avatar = null;
 
-	/** @var string|null */
-	private $profileTitle;
+	private ?string $profileTitle = null;
 
-	/** @var string|null */
-	private $profileUrl;
+	private ?string $profileUrl = null;
 
 	/** @var IAction[] */
-	private $actions = [];
+	private array $actions = [];
 
-	/** @var array */
-	private $properties = [];
+	private array $properties = [];
 
 	/**
 	 * @param string $id
