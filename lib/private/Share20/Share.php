@@ -466,7 +466,7 @@ class Share implements IShare {
 	/**
 	 * @inheritdoc
 	 */
-	public function setPasswordExpirationTime($passwordExpirationTime) {
+	public function setPasswordExpirationTime($passwordExpirationTime = null) {
 		$this->passwordExpirationTime = $passwordExpirationTime;
 		return $this;
 	}

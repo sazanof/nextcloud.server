@@ -453,7 +453,7 @@ interface IShare {
 	 *
 	 * @return \OCP\Share\IShare The modified object
 	 */
-	public function setPasswordExpirationTime($passwordExpirationTime);
+	public function setPasswordExpirationTime($passwordExpirationTime = null);
 
 	/**
 	 * Get the password's expiration time of this share.

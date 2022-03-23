@@ -278,6 +278,7 @@ class ShareAPIController extends OCSController {
 		} elseif ($share->getShareType() === IShare::TYPE_EMAIL) {
 			$result['share_with'] = $share->getSharedWith();
 			$result['password'] = $share->getPassword();
+			$result['password_expiration_time'] = $share->getPasswordExpirationTime();
 			$result['send_password_by_talk'] = $share->getSendPasswordByTalk();
 			$result['share_with_displayname'] = $this->getDisplayNameFromAddressBook($share->getSharedWith(), 'EMAIL');
 			$result['token'] = $share->getToken();
@@ -561,6 +562,10 @@ class ShareAPIController extends OCSController {
 			// Set password
 			if ($password !== '') {
 				$share->setPassword($password);
+				// Shares shared by email have temporary passwords by default
+				if ($shareType === IShare::TYPE_EMAIL) {
+					$this->setSharePasswordExpirationTime($share);
+				}
 			}
 
 			// Only share by mail have a recipient
@@ -1168,6 +1173,7 @@ class ShareAPIController extends OCSController {
 				$share->setPassword(null);
 			} elseif ($password !== null) {
 				$share->setPassword($password);
+				$this->setSharePasswordExpirationTime($share);
 			}
 
 			if ($label !== null) {
@@ -1502,6 +1508,34 @@ class ShareAPIController extends OCSController {
 		$date->setTime(0, 0, 0);
 
 		return $date;
+	}
+
+	/**
+	 * Set the share's password expiration time
+	 *
+	 * @param IShare $share
+	 *
+	 */
+	private function setSharePasswordExpirationTime($share) {
+		if ($this->config->getSystemValue('allow_mail_share_permanent_password')) {
+			// Sets password expiration date to NULL
+			$share->setPasswordExpirationTime();
+		} else {
+			// Sets password expiration date
+			try {
+				$now = new \DateTime();
+				$expirationInterval = $this->config->getSystemValue('share_temporary_password_expiration_interval');
+				if ($expirationInterval === '') {
+					$expirationInterval = 'P0DT15M';
+				}
+				$expirationTime = $now->add(new \DateInterval($expirationInterval));
+			} catch (\Exception $e) {
+				// Catches invalid format for system value 'share_temporary_password_expiration_interval'
+				$expirationTime = $now->add(new \DateInterval('P0DT15M'));
+			} finally {
+				$share->setPasswordExpirationTime($expirationTime);
+			}
+		}
 	}
 
 	/**
