@@ -1561,7 +1561,7 @@ class Manager implements IManager {
 			$now = new \DateTime();
 			if ($expirationDateTime < $now) {
 				return false;
-			}	
+			}
 		}
 
 		$newHash = '';
