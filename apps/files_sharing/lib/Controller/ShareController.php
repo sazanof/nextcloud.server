@@ -240,7 +240,7 @@ class ShareController extends AuthPublicShareController {
 	 * @param string $identityToken
 	 * @return bool
 	 */
-	protected function validateIdentity(string $identityToken): bool {
+	protected function validateIdentity(string $identityToken = null): bool {
 
 		if ($this->share->getShareType() !== IShare::TYPE_EMAIL) {
 			return false;
@@ -267,7 +267,7 @@ class ShareController extends AuthPublicShareController {
 		$password = $event->getPassword() ?? $this->secureRandom->generate(20);
 
 		$this->share->setPassword($password);
-		$this->shareManager->updateShare($this->share, true);
+		$this->shareManager->updateShare($this->share);
 		return;
 	}
 
